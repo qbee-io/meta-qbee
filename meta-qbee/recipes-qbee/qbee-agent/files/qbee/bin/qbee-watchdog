@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Failsafe script to recover using the packaged bootstrap policy in case a faulty update mechanism is
+# deployed.
+
+QBEE_SCRIPT_PATH=$(readlink -f "$0")
+QBEE_DIR=$(dirname "$QBEE_SCRIPT_PATH")
+
+# Accept any cf-agent on path
+CF_AGENT=$(which cf-agent)
+# Use cf-agent distributed in $PREFIX/libexec
+CF_AGENT=${CF_AGENT:-"${QBEE_DIR}/../libexec/cf-agent"}
+
+# do the check every hour by default
+INTERVAL=${1:-3600}
+
+eval "$($CF_AGENT -K -f "${QBEE_DIR}/../share/qbee/qbee-bootstrap.cf" -b bootstrap_print_sys_vars | sed 's/R:[ ]*//')"
+
+while true; do
+  # Sleep first, then do check
+  sleep $INTERVAL
+  if [[ -f $CFAGENT_WORKDIR/qbee-agent.json ]] || [[ -f /etc/qbee/qbee-agent.json ]]; then
+    # bootstrap_failsafe will check last checkin and do a forceful policy download if threshold
+    # is exceeded
+    $CF_AGENT -K -f $QBEE_DIR/../share/qbee/qbee-bootstrap.cf -b bootstrap_failsafe 
+  fi
+done

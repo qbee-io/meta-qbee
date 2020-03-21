@@ -1,0 +1,358 @@
+bundle common bootstrap_vars {
+  vars:
+    "curl" string => ifelse(isexecutable("$(sys.bindir)/curl"), "$(sys.bindir)/curl", "/usr/bin/curl");
+    "qbee_server" string => getenv("QBEE_SERVER", "200");
+    "qbee_port" string => getenv("QBEE_PORT", "200");
+    "qbee_key" string => getenv("QBEE_KEY", "200");
+    "qbee_http_proxy_server" string => getenv("QBEE_HTTP_PROXY_SERVER", "200");
+    "qbee_http_proxy_port" string => getenv("QBEE_HTTP_PROXY_PORT", "200");
+    "qbee_http_proxy_user" string => getenv("QBEE_HTTP_PROXY_USER", "200");
+    "qbee_http_proxy_pass" string => getenv("QBEE_HTTP_PROXY_PASS", "200");
+    "qbee_http_proxy_auth_method" string => getenv("QBEE_HTTP_PROXY_AUTH_METHOD", "200");
+
+    "qbee_agent_config_file" string => ifelse(
+      fileexists("/etc/qbee/qbee-agent.json"),
+      "/etc/qbee/qbee-agent.json",
+      fileexists("$(sys.workdir)/etc/qbee-agent.json"),
+      "$(sys.workdir)/etc/qbee-agent.json",
+      "$(sys.workdir)/qbee-agent.json" # old location
+    );
+
+    "qbee_agent_config" data => readjson("$(qbee_agent_config_file)"), if => fileexists("$(qbee_agent_config_file)");
+    "qbee_agent_config" data => parsejson('{
+      "server": "$(qbee_server)",
+      "port": "$(qbee_port)"
+    }'), if => not(fileexists("$(qbee_agent_config_file)"));
+
+    "qbee_agent_config" data => mergedata("qbee_agent_config", '{
+      "http_proxy_server": "$(qbee_http_proxy_server)",
+      "http_proxy_port": "$(qbee_http_proxy_port)"
+    }'), if => not(
+      or(
+        strcmp("$(qbee_http_proxy_server)", ""),
+        strcmp("$(qbee_http_proxy_port)", "")
+      )
+    );
+    "qbee_agent_config" data => mergedata("qbee_agent_config", '{
+      "http_proxy_user": "$(qbee_http_proxy_user)",
+      "http_proxy_pass": "$(qbee_http_proxy_pass)",
+      "http_proxy_auth_method": "$(qbee_http_proxy_auth_method)"
+    }'), if => not(
+      or(
+        strcmp("$(qbee_http_proxy_user)", ""),
+        strcmp("$(qbee_http_proxy_pass)", ""),
+        strcmp("$(qbee_http_proxy_auth_method)", "")
+      )
+    );
+
+    "qbee_http_proxy_auth" string => ifelse(
+      strcmp("$(qbee_agent_config[http_proxy_auth_method])", "ntlm"),
+        " --proxy-ntlm -U '$(qbee_agent_config[http_proxy_user]):$(qbee_agent_config[http_proxy_pass])'",
+        " --proxy-basic -U '$(qbee_agent_config[http_proxy_user]):$(qbee_agent_config[http_proxy_pass])'"
+      ), if => and(isvariable("qbee_agent_config[http_proxy_pass]"), isvariable("qbee_agent_config[http_proxy_user]"));
+
+    "qbee_http_proxy_auth" string => "", if => not(isvariable("qbee_agent_config[http_proxy_user]"));
+
+    "qbee_http_proxy_string" string =>
+      " -x http://$(qbee_agent_config[http_proxy_server]):$(qbee_agent_config[http_proxy_port])$(qbee_http_proxy_auth)",
+      if => and(isvariable("qbee_agent_config[http_proxy_server]"), isvariable("qbee_agent_config[http_proxy_port]"));
+
+    "qbee_http_proxy_string" string => "", if => not(isvariable("qbee_agent_config[http_proxy_server]"));
+    "qbee_agent_json" string => format("%S", "qbee_agent_config");
+}
+
+bundle agent bootstrap {
+  classes:
+    "qbee_env_vars_set" and => {
+      isvariable("bootstrap_vars.qbee_agent_config[server]"),
+      isvariable("bootstrap_vars.qbee_agent_config[port]"),
+      regcmp(".+","$(bootstrap_vars.qbee_key)")
+    };
+    # "ca_bundle_available" expression => fileexists("$(sys.workdir)/ppkeys/ca-certificates.crt");
+    # "qbee_insecure_bootstrap" expression => strcmp(getenv("QBEE_INSECURE_BOOTSTRAP"), "true");
+
+
+  methods:
+    qbee_env_vars_set::
+      "bootstrap_env" usebundle => bootstrap_env;
+      "bootstrap_pre" usebundle => bootstrap_pre;
+      "bootstrap_run" usebundle => bootstrap_run;
+      "bootstrap_post" usebundle => bootstrap_post;
+
+  reports:
+    !qbee_env_vars_set::
+      "ERROR: Skipping bootstrap, QBEE_SERVER[PORT|SERVER|KEY] env variables not set $(bootstrap_vars.qbee_key)";
+
+}
+
+
+bundle agent bootstrap_force {
+  methods:
+    "bootstrap_env" usebundle => bootstrap_env;
+    "bootstrap_force_run" usebundle => bootstrap_force_run; 
+}
+
+bundle agent bootstrap_force_run {
+  classes:
+    "bootstrap_force_update" expression => "any", scope => "namespace";
+
+  methods:
+    "bootstrap_force_policy_refresh"
+      usebundle => bootstrap_post;
+}
+
+bundle agent bootstrap_failsafe {
+  methods:
+    "bootstrap_env" usebundle => bootstrap_env;
+    "bootstrap_failsafe_run" usebundle => bootstrap_failsafe_run;
+}
+
+bundle agent bootstrap_failsafe_run {
+  vars:
+    "cfg_metadata" string => "$(sys.statedir)/qbee-cfg-metadata.json";
+    "cfg_modtime" string => ifelse(
+      fileexists("$(cfg_metadata)"),filestat("$(cfg_metadata)", "mtime"),
+      "0"
+    );
+    # Take scheduling interval into account?
+    # Default value is 12h (max scheduling interval) + 30s
+    "failsafe_limit" string => "43230";
+    "now" int => now();
+    "failsafe_limit" string => eval("$(now) - $(failsafe_limit)","math","infix");
+
+  classes:
+    "bootstrap_force_update" expression => "any", scope => "namespace";
+    # Assume rescue if node has not checked in for a period of 4h
+    "do_bootstrap_failsafe_checkin" expression => islessthan("$(cfg_modtime)", "$(failsafe_limit)");
+
+  processes:
+    # Assume rescue if cf-execd is not running
+    "cf-execd"
+      restart_class => "do_bootstrap_failsafe_no_execd";
+  
+  commands:
+    bootstrap_failsafe_update_download::
+      "$(sys.bindir)/cf-agent -K -f update.cf";
+
+  methods:
+    do_bootstrap_failsafe_no_execd|do_bootstrap_failsafe_checkin::
+      "bootstrap_force_policy_refresh"
+        classes => if_ok("bootstrap_failsafe_update_download"),
+        usebundle => bootstrap_post;
+
+  reports:
+    do_bootstrap_failsafe_no_execd::
+      "WARNING: Performing $(this.bundle) as cf-execd is not running";
+    do_bootstrap_failsafe_checkin::
+      "WARNING: Performing $(this.bundle) as checkin threshold has exceeded";
+}
+
+bundle agent bootstrap_print_sys_vars {
+  vars:
+    "v" slist => variablesmatching("default:sys.*dir.*");
+    "v_list" slist => maplist(regex_replace("$(this)", "^default:sys\.","",""),"v");
+    "v_map[$(v_list)]" string => string_upcase("$(v_list)");
+
+  reports:
+    "CFAGENT_$(v_map[$(v_list)])=$(sys.$(v_list))";
+}
+
+bundle agent bootstrap_env {
+  
+  vars:
+    qbee_config_dir_etc::
+      "qbee_agent_conf_dir" string => "/etc/qbee";
+    qbee_config_dir_workdir::
+      "qbee_agent_conf_dir" string => "$(sys.workdir)/etc";
+    qbee_config_dir_workdir_old.!(qbee_config_dir_etc|qbee_config_dir_workdir)::
+      "qbee_agent_conf_dir" string => "$(sys.workdir)";
+  
+  classes:
+    "qbee_config_dir_workdir_old" expression => fileexists("$(sys.workdir)/qbee-agent.json");
+
+  files:
+    "/etc/qbee/ppkeys/."
+      create => "true",
+      perms => m("0700"),
+      classes => if_ok("qbee_config_dir_etc");
+
+    "$(sys.workdir)/etc/ppkeys/."
+      create => "true",
+      perms => m("0700"),
+      if => not("qbee_config_dir_etc"),
+      classes => if_ok("qbee_config_dir_workdir");
+}
+
+bundle agent bootstrap_pre {
+  vars:
+    "openssl" string => ifelse(isexecutable("$(sys.bindir)/openssl"), "$(sys.bindir)/openssl", "/usr/bin/openssl"); 
+
+    "device_ca_url" string => "https://cdn.qbee.io/app/device/ca-cert.pem";
+    "device_ca_cert_path" string => "$(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee-ca-cert.pem";
+    "cacert_loc" string => ifelse(
+      fileexists("$(this.promise_dirname)/../../ssl/certs/ca-certificates.crt"),
+      "$(this.promise_dirname)/../../ssl/certs/ca-certificates.crt",
+      "/etc/ssl/certs/ca-certificates.crt"
+    );
+    "privkey" string => "$(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee.key";
+    "pubkey" string => "$(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee.pub";
+
+  files:
+    "$(privkey)"
+      perms => m("0400"),
+      if => fileexists("$(privkey)");
+
+    "$(pubkey)"
+      perms => m("0600"),
+      if => fileexists("$(pubkey)");
+
+    "$(sys.statedir)/bootstrap_reply.json"
+      delete => tidy;
+
+    "$(device_ca_cert_path)"
+      perms => m("0600"),
+      if => fileexists("$(device_ca_cert_path)");
+
+  commands:
+    "$(openssl) ecparam -name secp521r1 -genkey -noout -out $(privkey)"
+      if => not(fileexists("$(privkey)")),
+      contain => in_shell_and_silent;
+
+    "$(openssl) ec -in $(privkey) -pubout -out $(pubkey)"
+      contain => silent;
+
+    "$(bootstrap_vars.curl)$(bootstrap_vars.qbee_http_proxy_string) --connect-timeout 5 --create-dirs -sfL \
+      --cacert $(cacert_loc) -o $(device_ca_cert_path) $(device_ca_url)"
+      contain => silent;
+}
+
+bundle agent bootstrap_run {
+  vars:
+    "bootstrap_endpoint" string => "/v1/org/device/xauth/bootstrap";
+    "ws_url" string => "https://$(bootstrap_vars.qbee_agent_config[server]):$(bootstrap_vars.qbee_agent_config[port])$(bootstrap_endpoint)";
+
+    "pubkey"
+      slist => readstringlist("$(bootstrap_pre.pubkey)", "#.*","[\n]","20","1024"),
+      if => fileexists("$(bootstrap_pre.pubkey)");
+
+    "ifaces" slist => getindices("sys.ipv4");
+    "ipv4[$(ifaces)]" string => "$(sys.ipv4[$(ifaces)])";
+
+    "curl_data" data => mergedata('{"pub_key": pubkey,
+      "host": "$(sys.host)",
+      "fqhost": "$(sys.fqhost)",
+      "uqhost": "$(sys.uqhost)",
+      "ip_default": "$(sys.ipv4)",
+      "hardware_mac": sys.hardware_mac,
+      "ipv4": ipv4
+    }');
+
+    "post_data" string => format("%S", "curl_data");
+    # url_get will look for certificates in
+    # $PREFIX/ssl/certs/ca-certificates.crt
+
+  files:
+    "$(sys.statedir)/qbee.id.json"
+      create => "true",
+      edit_defaults => empty,
+      classes => if_ok("localhost_id_json_ok"),
+      edit_line => insert_lines("$(post_data)");
+
+  commands:
+    localhost_id_json_ok::
+      "$(bootstrap_vars.curl)$(bootstrap_vars.qbee_http_proxy_string) -fs -H \"Authorization: token $(bootstrap_vars.qbee_key)\" -o $(sys.statedir)/bootstrap_reply.json \
+       -d@$(sys.statedir)/qbee.id.json --cacert $(bootstrap_pre.device_ca_cert_path) \
+       --connect-timeout 5 --create-dirs '$(ws_url)'"
+        contain => silent;
+}
+
+bundle agent bootstrap_post{
+  vars:
+    "tar" string => ifelse(isexecutable("/bin/tar"), "/bin/tar", "/usr/bin/tar");
+    "tmp_dir" string => "$(sys.workdir)/qbee-policy-update";
+    "tmp_dir_unpack" string => "$(tmp_dir)/update";
+    "update_policy_file" string => "qbee-policy-update-latest.tar.gz";
+
+    "repl" 
+      data => readjson("$(sys.statedir)/bootstrap_reply.json","8192"),
+      if => fileexists("$(sys.statedir)/bootstrap_reply.json");
+
+    got_certificate::
+      "cert_str" string => join("$(const.n)","repl[cert]");
+
+  classes:
+    "got_certificate" expression => isvariable("repl[cert]");
+
+  files:
+    any::
+      "$(tmp_dir_unpack)/."
+        create => "true";
+
+    got_certificate::
+      "$(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee.cert"
+        create => "true",
+        perms => m("600"),
+        edit_defaults => empty,
+        edit_line => insert_lines("$(cert_str)"),
+        if => isvariable("cert_str"),
+        classes => if_ok("cert_written");
+
+    update_policy_unpacked.!bootstrap_force_update::
+      "$(sys.statedir)/qbee-bootstrap.dat"
+        create => "true";
+
+      "$(bootstrap_env.qbee_agent_conf_dir)/qbee-agent.json"
+        create => "true",
+        edit_defaults => empty,
+        edit_line => insert_lines("$(bootstrap_vars.qbee_agent_json)");
+
+  commands:
+    # Add force update so bootstrap.cf can run as failsafe (Need to figure out logic for deteticting isolation)
+    # Isolation checks should be run by separate process as a corrupt cf-promises will bork exec_command
+    bootstrap_force_update|cert_written::
+      "$(bootstrap_vars.curl)$(bootstrap_vars.qbee_http_proxy_string) --cacert $(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee-ca-cert.pem \
+        --key $(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee.key --cert $(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee.cert \
+        -f -o $(tmp_dir)/$(update_policy_file) --connect-timeout 5 --create-dirs \
+        https://$(bootstrap_vars.qbee_agent_config[server]):$(bootstrap_vars.qbee_agent_config[port])/v1/org/device/auth/policy/update/latest"
+      classes => if_ok("update_policy_downloaded"),
+      contain => silent;
+
+    update_policy_downloaded::
+      "$(tar) -xz -f $(tmp_dir)/$(update_policy_file) -C $(sys.workdir)/inputs"
+        classes => if_ok("update_policy_unpacked"),
+        contain => silent;
+
+}
+
+bundle edit_line insert_lines(l) {
+  insert_lines:
+    "$(l)";
+}
+
+body edit_defaults empty {
+  empty_file_before_editing => "true";
+  edit_backup => "false";
+}
+
+body classes if_ok(x) {
+  promise_repaired => { "$(x)" };
+  promise_kept => { "$(x)" };
+}
+
+body contain silent {
+  no_output => "true";
+}
+
+body contain in_shell_and_silent {
+  useshell => "true";
+  no_output => "true";
+}
+
+body perms m(mode) {
+  mode => "$(mode)";
+}
+
+body delete tidy {
+  dirlinks => "delete";
+  rmdirs   => "true";
+}

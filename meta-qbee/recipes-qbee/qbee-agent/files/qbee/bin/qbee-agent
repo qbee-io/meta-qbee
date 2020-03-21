@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+QBEE_SCRIPT_PATH=$(readlink -f "$0")
+QBEE_DIR=$(dirname "$QBEE_SCRIPT_PATH")
+
+# Accept any cf-agent on path
+CF_AGENT=$(which cf-agent)
+# Use cf-agent distributed in $PREFIX/libexec
+CF_AGENT=${CF_AGENT:-"${QBEE_DIR}/../libexec/cf-agent"}
+
+$CF_AGENT -K -f update.cf $* && $CF_AGENT -K $*

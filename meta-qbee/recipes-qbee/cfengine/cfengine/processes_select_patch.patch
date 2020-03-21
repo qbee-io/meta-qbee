@@ -1,0 +1,20 @@
+--- a/libpromises/processes_select.c	2017-03-29 08:10:28.367087194 +0200
++++ b/libpromises/processes_select.c	2017-03-29 08:12:11.763931392 +0200
+@@ -1083,7 +1083,7 @@
+     for (const char *sp = psentry + offset; *sp != '\0'; sp++) /* if first field contains alpha, skip */
+     {
+         /* If start with alphanum then skip it till the first space */
+-
++#ifndef __BUSYBOX__
+         if (isalnum((unsigned char) *sp))
+         {
+             while (*sp != ' ' && *sp != '\0')
+@@ -1091,7 +1091,7 @@
+                 sp++;
+             }
+         }
+-
++#endif
+         while (*sp == ' ' || *sp == '\t')
+         {
+             sp++;

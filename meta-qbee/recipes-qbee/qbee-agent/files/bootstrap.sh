@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+
+BOOTSTRAP_DIR=$(cd "$(dirname "$0")" && pwd)
+
+CF_AGENT=$(which cf-agent)
+CF_AGENT=${CF_AGENT:-"${BOOTSTRAP_DIR}/../bin/cf-agent"}
+QBEE_SERVER=${QBEE_SERVER:-"device.app.qbee.io"}
+QBEE_PORT=${QBEE_PORT:-443}
+QBEE_KEY=${QBEE_KEY}
+
+QBEE_HTTP_PROXY_SERVER=${QBEE_HTTP_PROXY_SERVER}
+QBEE_HTTP_PROXY_PORT=${QBEE_HTTP_PROXY_PORT:-3128}                # Default to squid port
+QBEE_HTTP_PROXY_USER=${QBEE_HTTP_PROXY_USER}
+QBEE_HTTP_PROXY_PASS=${QBEE_HTTP_PROXY_PASS}
+QBEE_HTTP_PROXY_AUTH_METHOD=${QBEE_HTTP_PROXY_AUTH_METHOD:-basic} # Default to basic auth
+
+FORCE_BOOTSTRAP=0
+
+log () {
+  echo "$(date) - $*"
+}
+
+run_bootstrap_bundle() {
+  local bundle=$1
+  local output
+  local curl_returncode
+
+  output=$(${CF_AGENT} -K -f "${BOOTSTRAP_DIR}/bootstrap.cf" -b "$bundle" 2>&1)
+  curl_returncode=$(echo $output | sed -n 's/.*an error occurred, returned \([0-9]*\).*/\1/p')
+  if [[ -n $curl_returncode ]]; then
+    case $curl_returncode in
+      ''|*[!0-9]*)
+        return 0
+      ;;
+      *)
+        log "ERROR: Bootstrap failed with error code $curl_returncode"
+        report_help_curl_err "$curl_returncode"
+        exit 1
+      ;;
+    esac
+  fi
+}
+
+report_help_curl_err() {
+  echo
+  echo "Help on error code $1:"
+  case $1 in
+    6)
+      echo "This error code indicates that there is an issue with resolving DNS names. Please check the DNS configuration on your device."
+      ;;
+    7)
+      echo "The error code indicates that there are no route to the device policy hub. Please check connectivity to internet from your device."
+      if [[ -n ${QBEE_HTTP_PROXY_SERVER} ]]; then
+        echo "A proxy host has also been set (-x). The error can also be an indication that you have defined the wrong server (-x) and the wrong port (-X) for your proxy."
+      fi
+      ;;
+    22)
+      echo "The error indicates that the bootstrap key is not valid. Please check your bootstrap keys of your profile and check for possible copy/paste errors."
+      if [[ -n ${QBEE_HTTP_PROXY_USER} ]]; then
+        echo "A proxy username has also been set (-U). The error can also be an indication that you have used the wrong credentials for you proxy."
+      fi
+      ;;
+    26)
+      echo "The error indicates that there might be an issue with your proxy settings. Please review."
+      ;;
+    28)
+      echo "The error indicates there was a connection timeout. This is usually caused by a firewall, either locally on the system or on route to the device hub (device.app.qbee.io)."
+      echo "Please make sure that port 443 is open for outgoing traffic in all relevant firewalls."
+      ;;
+    *)
+      echo "No help text for error code $1. Please check error codes in 'man curl' or contact support."
+      ;;
+  esac
+  echo
+    # 6 DNS failure
+    # 22 Bootstrap Key failure
+    # 7 No route to host or connection refused
+    # 28 timeout (firewall openings)
+    # 35 SSL connection errors
+    # 60 The remote server's SSL certificate or SSH md5 fingerprint was deemed not OK.
+    # 77 Problem with reading the SSL CA cert
+}
+
+usage() {
+  echo "$(basename "$0") [-h] [-k key] [-x proxy_address] [-X proxy_port] [-U proxy_user] [-P proxy_pass] [-m proxy_method] [-s server] [-p port]
+    -h  Show this help text
+    -k  Set the bootstrap key found in the user profile (required)
+    -x  Specify a proxy host to use
+    -X  Specify a proxy port to use (default: 3128)
+    -U  Specify a proxy username
+    -P  Specify a proxy password
+    -m  Specify a proxy authentication method [ntlm|basic] (default: basic)
+    -s  Set the server to bootstrap to. Don't set this if you are using www.app.qbee.io (default: device.app.qbee.io)
+    -p  Set the server port to bootstrap to. Don't set this if you are using www.app.qbee.io (default: 443)"
+}
+
+
+while getopts "k:p:s:U:P:x:X:m:dFh" opt; do
+  case $opt in
+  s)
+    QBEE_SERVER=$OPTARG
+    ;;
+  p)
+    QBEE_PORT=$OPTARG
+    ;;
+  k)
+    QBEE_KEY=$OPTARG
+    ;;
+  U)
+    QBEE_HTTP_PROXY_USER=$OPTARG
+    ;;
+  P)
+    QBEE_HTTP_PROXY_PASS=$OPTARG
+    ;;
+  x)
+    QBEE_HTTP_PROXY_SERVER=$OPTARG
+    ;;
+  X)
+    QBEE_HTTP_PROXY_PORT=$OPTARG
+    ;;
+  m)
+    QBEE_HTTP_PROXY_AUTH_METHOD=$OPTARG
+    ;;
+  d)
+    set -x
+    ;;
+  F)
+    FORCE_BOOTSTRAP=1
+    ;;
+  h)
+    usage
+    exit 0
+    ;;
+  \?)
+    echo "Invalid option: -$OPTARG" >&2
+    usage
+    exit 1
+    ;;
+  esac
+done
+
+if [[ "$USER" != "root" ]]; then
+  log "ERROR: The bootstrap script must be run as root" 
+  exit 1
+fi
+
+if [[ ! -f "$CF_AGENT" ]]; then
+  log "ERROR: Unable to find $CF_AGENT"
+  exit 1
+fi
+
+if [[ $FORCE_BOOTSTRAP -gt 0 ]]; then
+  log "INFO: Attempting forceful update of policy"
+  run_bootstrap_bundle bootstrap_force
+  log "INFO: Successfully completed forced refresh of update policy"
+  $CF_AGENT -K -f update.cf
+  log "INFO: Successfully completed forced refresh of policy"
+  log "INFO: Forceful update of policy completed successfully"
+  exit 0
+fi
+
+TMPFILE=/tmp/qbee-bootstrap.$$.cf
+
+cat > $TMPFILE << EOF
+bundle agent main {
+  reports:
+    "CFAGENT_STATEDIR=\$(sys.statedir)";
+    "CFAGENT_BINDIR=\$(sys.bindir)";
+    "CFAGENT_WORKDIR=\$(sys.workdir)";
+}
+EOF
+
+chmod 600 $TMPFILE
+
+eval "$($CF_AGENT -K -f $TMPFILE | sed 's/R:[ ]*//')"
+
+rm -f "$TMPFILE"
+
+if [[ -f $CFAGENT_WORKDIR/qbee-agent.json ]]; then
+  # Remove any previous qbee-agent.json, we are doing a new bootstrap
+  rm -f "$CFAGENT_WORKDIR/qbee-agent.json"
+fi
+
+if [[ -z "${QBEE_SERVER}" ]]; then
+  log "ERROR: Cannot bootstrap against empty server"
+  exit 1
+fi
+
+if [[ -z "${QBEE_PORT}" ]]; then
+  log "ERROR: Cannot bootstrap against empty port"
+  exit 1
+fi
+
+if [[ -z "${QBEE_KEY}" ]]; then
+  log "ERROR: Cannot bootstrap without a valid bootstrap key. Specify either through '\$QBEE_KEY' environment variable or with option '-k' to this script"
+  log "ERROR: You find your bootstrap keys under your user profile in at https://www.app.qbee.io"
+  exit 1
+fi
+
+export QBEE_SERVER QBEE_PORT QBEE_KEY
+log "INFO: Device hub host: $QBEE_SERVER"
+log "INFO: Device hub port: $QBEE_PORT"
+
+if [[ -n "${QBEE_HTTP_PROXY_SERVER}" ]] && [[ -n "${QBEE_HTTP_PROXY_PORT}" ]]; then
+  export QBEE_HTTP_PROXY_SERVER QBEE_HTTP_PROXY_PORT
+  log "INFO: Proxy host: $QBEE_HTTP_PROXY_SERVER"
+  log "INFO: Proxy host: $QBEE_HTTP_PROXY_PORT"
+fi
+
+if [[ -n "${QBEE_HTTP_PROXY_USER}" ]] && [[ -n "${QBEE_HTTP_PROXY_PASS}" ]]; then
+  export QBEE_HTTP_PROXY_USER QBEE_HTTP_PROXY_PASS QBEE_HTTP_PROXY_AUTH_METHOD
+  log "INFO: Proxy user: $QBEE_HTTP_PROXY_USER (not showing password)"
+  log "INFO: Proxy auth method: $QBEE_HTTP_PROXY_AUTH_METHOD"
+fi
+
+log "INFO: Starting bootstrap"
+
+while [[ ! -f "$CFAGENT_STATEDIR/qbee-bootstrap.dat" ]]; do
+  run_bootstrap_bundle bootstrap
+  sleep 5
+  log "INFO: Awaiting to be approved"
+done
+
+log "INFO: Updating policy cache"
+${CF_AGENT} -K -f update.cf > /dev/null 2>&1
+log "INFO: Executing initial config run"
+${CF_AGENT} -K -D bootstrap_initial_run > /dev/null 2>&1
+
+# Wait for qbee0 to appear in /proc/net/dev, make sure to timeout if it uses to long come up
+iter=0
+while ! grep -q ^qbee0 /proc/net/dev && [[ $iter -lt 30 ]]; do
+  iter=$(($iter + 1))
+  sleep 1
+done
+
+# Run twice to report the remote console interface
+${CF_AGENT} -K -D bootstrap_initial_run > /dev/null 2>&1
+
+rm -f "$CFAGENT_STATEDIR/qbee-bootstrap.dat"
+log "INFO: Bootstrap complete"
