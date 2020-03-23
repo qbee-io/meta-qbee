@@ -1,0 +1,19 @@
+[Unit]
+Description=qbee-agent umbrella service
+Documentation=http://help.qbee.io
+After=syslog.target
+
+Wants=qbee-scheduler.service
+Wants=qbee-watchdog.service
+
+Before=qbee-scheduler.service
+Before=qbee-watchdog.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecStop=/bin/true
