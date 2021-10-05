@@ -1,7 +1,7 @@
 SUMMARY = "bitbake-layers recipe"
 DESCRIPTION = "Recipe created by bitbake-layers"
-LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/COPYRIGHT;md5=ce6267074a0b0daba74d60688fbecb92"
+LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
 RDEPENDS_${PN} += "cfengine openvpn curl coreutils bash gawk openssl-bin procps systemd-extra-utils kernel-modules sshd"
 
