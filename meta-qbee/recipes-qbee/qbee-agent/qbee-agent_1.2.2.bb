@@ -12,7 +12,7 @@ SRC_URI = "file://qbee/ \
   "
 
 qbee_dest_path = "/opt/qbee"
-cf_workdir = "/var/lib/qbee"
+cf_workdir = "${localstatedir}/lib/qbee"
 
 FILES_${PN} = "${qbee_dest_path}/* ${cf_workdir}/bin/* ${systemd_system_unitdir}/*" 
 
