@@ -3,7 +3,7 @@ DESCRIPTION = "Recipe created by bitbake-layers"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/COPYRIGHT;md5=ce6267074a0b0daba74d60688fbecb92"
 
-RDEPENDS:${PN} += "cfengine openvpn curl coreutils bash gawk openssl-bin procps systemd-extra-utils kernel-modules sshd"
+RDEPENDS:${PN} += "cfengine openvpn curl coreutils bash gawk openssl-ossl-module-legacy procps systemd-extra-utils kernel-modules sshd"
 
 inherit systemd
 

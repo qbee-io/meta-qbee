@@ -10,15 +10,16 @@ HOMEPAGE = "http://cfengine.com"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f8b34828ab373d6b1bb4b0fc60a78494"
 
-DEPENDS = "attr lmdb libpcre openssl curl"
+DEPENDS = "attr lmdb libpcre openssl curl pkgconfig"
 
 SRC_URI = "https://cfengine-package-repos.s3.amazonaws.com/tarballs/${BP}.tar.gz \
            file://set-path-of-default-config-file.patch \
            file://processes_select_patch.patch \
+           file://patch_for_openssl_3.patch \
            "
 
-SRC_URI[md5sum] = "d8b60b3a9d6a3ec7c0b6c228cf29b562"
-SRC_URI[sha256sum] = "245a98b18e075fbd2e9a460c0c25b31fb6807d9da5f4b2ec1fc571ed7267a9aa"
+SRC_URI[md5sum] = "e78245048aafe1a69c2822758394990f"
+SRC_URI[sha256sum] = "df98bc1260d6ac1f7b653ffa738dd5db6273fd59c182750a0cb1a895d6669ddb"
 
 inherit autotools
 
@@ -30,13 +31,13 @@ cf_piddir = "${workdir}/run"
 export EXPLICIT_VERSION="${PV}"
 
 EXTRA_OECONF = "hw_cv_func_va_copy=yes --with-piddir=${cf_piddir} --with-workdir=${cf_workdir} --with-logdir=${cf_logdir} --with-statedir=${cf_statedir}"
-EXTRA_OECONF += "--with-pcre --with-openssl --with-lmdb --with-libcurl"
+EXTRA_OECONF += "--with-pcre --with-openssl --with-lmdb --with-libcurl --disable-libtool-lock"
 EXTRA_OECONF += "--without-libvirt --without-pam  --without-libxml2 --without-postgresql --without-libacl --without-mysql --without-tokyocabinet --without-libyaml"
-#EXTRA_OEMAKE += "'LDFLAGS=${LDFLAGS} -Wl,-rpath=${prefix}/lib -L${prefix}/lib'"
+#EXTRA_OEMAKE += "'LDFLAGS=${LDFLAGS} -Wl,-rpath="${prefix}/lib -L${prefix}/lib'"
 #TARGET_CFLAGS += "-D__BUSYBOX__"
 
 do_compile:prepend() {
-   echo "                                   Werkdir ${WORKDIR}"
+   echo "                                   Workdir ${WORKDIR}"
    echo "                                   Compiler ${CC}"
    echo "                                   BUILD_LDFLAGS ${BUILD_LDFLAGS}"
    echo "                                   LDFLAGS ${LDFLAGS}"
@@ -52,3 +53,16 @@ do_install:append() {
     # Prevent cfengine native service files
     #rm -rf ${D}/usr/lib/systemd
 }
+
+do_configure:append() {
+  rm -rf ${S}/cf-monitord/Makefile
+  rm -rf ${B}/cf-monitord/Makefile
+  cat > ${S}/cf-monitord/Makefile << EOF
+all:
+.PHONY: all
+install:
+.PHONY: install
+EOF
+  cp ${S}/cf-monitord/Makefile ${B}/cf-monitord
+}
+
