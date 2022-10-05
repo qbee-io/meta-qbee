@@ -35,7 +35,7 @@ EXTRA_OECONF += "--without-libvirt --without-pam  --without-libxml2 --without-po
 #EXTRA_OEMAKE += "'LDFLAGS=${LDFLAGS} -Wl,-rpath=${prefix}/lib -L${prefix}/lib'"
 #TARGET_CFLAGS += "-D__BUSYBOX__"
 
-do_compile_prepend() {
+do_compile:prepend() {
    echo "                                   Werkdir ${WORKDIR}"
    echo "                                   Compiler ${CC}"
    echo "                                   BUILD_LDFLAGS ${BUILD_LDFLAGS}"
@@ -43,7 +43,7 @@ do_compile_prepend() {
    echo "                                   TARGET_LDFLAGS ${TARGET_LDFLAGS}"
 }
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${cf_workdir}/bin
     for f in `ls ${D}${bindir}`; do
         ln -s ${bindir}/`basename $f` ${D}${cf_workdir}/bin/

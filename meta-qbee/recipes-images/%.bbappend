@@ -1,1 +1,1 @@
-IMAGE_INSTALL_append = " qbee-agent"
+IMAGE_INSTALL:append = " qbee-agent"
