@@ -7,7 +7,7 @@ its lifecycle. CFEngine takes systems from Build to Deploy, Manage and Audit."
 
 HOMEPAGE = "http://cfengine.com"
 
-LICENSE = "GPLv3"
+LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f8b34828ab373d6b1bb4b0fc60a78494"
 
 DEPENDS = "attr lmdb libpcre openssl curl pkgconfig"
@@ -18,8 +18,8 @@ SRC_URI = "https://cfengine-package-repos.s3.amazonaws.com/tarballs/${BP}.tar.gz
            file://patch_for_openssl_3.patch \
            "
 
-SRC_URI[md5sum] = "e78245048aafe1a69c2822758394990f"
-SRC_URI[sha256sum] = "df98bc1260d6ac1f7b653ffa738dd5db6273fd59c182750a0cb1a895d6669ddb"
+SRC_URI[md5sum] = "d8b60b3a9d6a3ec7c0b6c228cf29b562"
+SRC_URI[sha256sum] = "245a98b18e075fbd2e9a460c0c25b31fb6807d9da5f4b2ec1fc571ed7267a9aa"
 
 inherit autotools
 
