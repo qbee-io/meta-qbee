@@ -7,13 +7,9 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 GO_IMPORT = "github.com/qbee-io/qbee-agent"
 GO_INSTALL = "${GO_IMPORT}/cmd/qbee-agent"
 
-#DEPENDS += "go-dep"
-
 SRC_URI = "git://git@${GO_IMPORT};branch=master;protocol=ssh"
 SRCREV = "0de6c31074c57c7c2482a6c4a8a46fc31b4b7106"
 UPSTREAM_CHECK_COMMITS = "1"
-
-#export GO111MODULE="on"
 
 inherit go-mod
 
