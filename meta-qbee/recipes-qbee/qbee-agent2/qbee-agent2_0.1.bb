@@ -8,7 +8,7 @@ GO_IMPORT = "github.com/qbee-io/qbee-agent"
 GO_INSTALL = "${GO_IMPORT}/cmd/qbee-agent"
 
 SRC_URI = "git://git@${GO_IMPORT};branch=master;protocol=ssh"
-SRCREV = "0de6c31074c57c7c2482a6c4a8a46fc31b4b7106"
+SRCREV = "1313e893deeff56d81105260278ee2b6b0ff8031"
 UPSTREAM_CHECK_COMMITS = "1"
 
 inherit go-mod
@@ -18,9 +18,9 @@ python __anonymous() {
 }
 
 # This is just to make clear where this example is
-#do_compile() {
-#  make yocto
-#}
+do_compile() {
+  make yocto
+}
 
 do_install:append() {
     cp ${D}${bindir}/qbee-agent ${D}${bindir}/${BPN}
