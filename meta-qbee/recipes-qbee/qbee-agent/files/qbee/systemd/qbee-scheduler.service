@@ -3,7 +3,7 @@ Description=qbee-agent scheduler
 After=syslog.target
 ConditionPathExists=@cf_workdir@/bin/cf-execd
 ConditionPathExists=@cf_workdir@/inputs/promises.cf
-PartOf=qbee-agent.service
+Requires=qbee-agent.service
 
 [Service]
 Type=simple

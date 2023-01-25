@@ -23,10 +23,10 @@ SRC_URI[sha256sum] = "245a98b18e075fbd2e9a460c0c25b31fb6807d9da5f4b2ec1fc571ed72
 
 inherit autotools
 
-cf_workdir = "/var/lib/qbee"
+cf_workdir = "/data/var/lib/qbee"
 cf_statedir = "/run/qbee/state"
-cf_logdir = "${workdir}/log"
-cf_piddir = "${workdir}/run"
+cf_logdir = "${cf_workdir}/log"
+cf_piddir = "${cf_workdir}/run"
 
 export EXPLICIT_VERSION="${PV}"
 
@@ -37,6 +37,7 @@ EXTRA_OECONF += "--without-libvirt --without-pam  --without-libxml2 --without-po
 #TARGET_CFLAGS += "-D__BUSYBOX__"
 
 do_compile:prepend() {
+   echo "                                   Datadir ${datadir}"
    echo "                                   Workdir ${WORKDIR}"
    echo "                                   Compiler ${CC}"
    echo "                                   BUILD_LDFLAGS ${BUILD_LDFLAGS}"
@@ -45,16 +46,21 @@ do_compile:prepend() {
 }
 
 do_install:append() {
-    install -d ${D}${cf_workdir}/bin
-    for f in `ls ${D}${bindir}`; do
-        ln -s ${bindir}/`basename $f` ${D}${cf_workdir}/bin/
-    done
-
-    # Prevent cfengine native service files
+  rm -rf ${D}/data
+#  install -d ${D}${sysconfdir}
+#  ln -sf ../..${cf_confdir} ${D}/etc/qbee
+#    install -d ${D}${cf_workdir}/bin
+#    for f in `ls ${D}${bindir}`; do
+#        ln -s ${bindir}/`basename $f` ${D}${cf_workdir}/bin/
+#    done
+#    
+#    # Prevent cfengine native service files
     #rm -rf ${D}/usr/lib/systemd
 }
 
 do_configure:append() {
+  # cf-monitord does not compile and we do not need it
+
   rm -rf ${S}/cf-monitord/Makefile
   rm -rf ${B}/cf-monitord/Makefile
   cat > ${S}/cf-monitord/Makefile << EOF

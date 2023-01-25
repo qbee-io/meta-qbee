@@ -15,5 +15,6 @@ WantedBy=multi-user.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+ExecStartPre=@qbee_dest_path@/bin/qbee-ensure-paths
 ExecStart=/bin/true
 ExecStop=/bin/true

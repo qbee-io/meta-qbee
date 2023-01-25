@@ -12,13 +12,19 @@ SRC_URI = "file://qbee/ \
   "
 
 qbee_dest_path = "/opt/qbee"
-cf_workdir = "/var/lib/qbee"
+cf_workdir = "/data/var/lib/qbee"
+qbee_confdir = "/data/etc/qbee"
 
-FILES:${PN} = "${qbee_dest_path}/* ${cf_workdir}/bin/* ${systemd_system_unitdir}/*" 
+FILES:${PN} = "${qbee_dest_path}/* ${cf_workdir}/bin/* ${systemd_system_unitdir}/* ${sysconfdir}/qbee ${qbee_confdir}" 
 
 SYSTEMD_SERVICE:${PN} = "qbee-agent.service"
 
 do_install () {
+  # Make sure to symlink config directory
+
+  install -d ${D}${qbee_confdir}
+  install -d ${D}${sysconfdir}
+  ln -sf ../..${qbee_confdir} ${D}/etc/qbee
 
   mkdir -p ${D}${qbee_dest_path}/bin
   for file in ${WORKDIR}/qbee/bin/*; do
@@ -38,6 +44,7 @@ do_install () {
   mkdir -p ${D}${systemd_system_unitdir}
   for file in ${WORKDIR}/qbee/systemd/*.service; do
     sed -i -e "s#@cf_workdir@#${cf_workdir}#g" $file
+    sed -i -e "s#@qbee_dest_path@#${qbee_dest_path}#g" $file
     install -m 644 $file ${D}${systemd_system_unitdir}/$(basename $file)
   done
 }

@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-QBEE_SCRIPT_PATH=$(readlink -f "$0")
-QBEE_DIR=$(dirname "$QBEE_SCRIPT_PATH")
+QBEE_DIR=$(cd $(dirname $0) && pwd)
 
 # Accept any cf-agent on path
-CF_AGENT=$(which cf-agent)
+CF_AGENT=$(command -v cf-agent)
 # Use cf-agent distributed in $PREFIX/libexec
 CF_AGENT=${CF_AGENT:-"${QBEE_DIR}/../libexec/cf-agent"}
 QBEE_SERVER=${QBEE_SERVER:-"device.app.qbee.io"}
@@ -232,7 +231,7 @@ ${CF_AGENT} -K -D bootstrap_initial_run > /dev/null 2>&1
 
 # Wait for qbee0 to appear in /proc/net/dev, make sure to timeout if it uses to long come up
 iter=0
-while ! grep -q ^qbee0 /proc/net/dev && [[ $iter -lt 30 ]]; do
+while ! grep -q '^[[:space:]]*qbee0' /proc/net/dev && [[ $iter -lt 30 ]]; do
   iter=$(($iter + 1))
   sleep 1
 done

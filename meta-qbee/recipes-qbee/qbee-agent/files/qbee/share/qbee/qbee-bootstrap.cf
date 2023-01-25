@@ -187,7 +187,8 @@ bundle agent bootstrap_pre {
   vars:
     "openssl" string => ifelse(isexecutable("$(sys.bindir)/openssl"), "$(sys.bindir)/openssl", "/usr/bin/openssl"); 
 
-    "device_ca_url" string => "https://cdn.qbee.io/app/device/ca-cert.pem";
+    #"device_ca_url" string => "https://cdn.qbee.io/app/device/ca-cert.pem";
+    "device_ca_url" string => "https://cdn.qbee.io/app/device/qbee-ca-cert-bundle.pem";
     "device_ca_cert_path" string => "$(bootstrap_env.qbee_agent_conf_dir)/ppkeys/qbee-ca-cert.pem";
     "cacert_loc" string => ifelse(
       fileexists("$(this.promise_dirname)/../../ssl/certs/ca-certificates.crt"),
