@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+QBEE_DIR=$(cd $(dirname $0) && pwd)
+DATA_CONF_DIR="/data/etc/qbee"
+
+# Accept any cf-agent on path
+CF_PROMISES=$(command -v cf-promises)
+# Use cf-agent distributed in $PREFIX/libexec
+CF_PROMISES=${CF_PROMISES:-"${QBEE_DIR}/../libexec/cf-promises"}
+
+WORKDIR=$($CF_PROMISES --show-vars -f /dev/null | awk '/^default:sys.workdir/{print $2}')
+
+if [[ ! -d "$DATA_CONF_DIR" ]]; then
+  mkdir -p "$DATA_CONF_DIR"
+fi
+
+CF_BIN_DIR=$(dirname $CF_PROMISES)
+
+for bin in ${CF_BIN_DIR}/cf-*; do
+  bin_name=$(basename $bin)
+  if [[ ! -L "$WORKDIR/bin/$bin_name" ]]; then
+    ln -sf $bin "$WORKDIR/bin/$bin_name"
+  fi
+done
