@@ -15,7 +15,7 @@ qbee_dest_path = "/opt/qbee"
 cf_workdir = "/data/var/lib/qbee"
 qbee_confdir = "/data/etc/qbee"
 
-FILES:${PN} = "${qbee_dest_path}/* ${cf_workdir}/bin/* ${systemd_system_unitdir}/* ${sysconfdir}/qbee ${qbee_confdir}" 
+FILES:${PN} = "${qbee_dest_path}/* ${cf_workdir}/bin/* ${systemd_system_unitdir}/* ${sysconfdir}/qbee ${qbee_confdir}"
 
 SYSTEMD_SERVICE:${PN} = "qbee-agent.service"
 
