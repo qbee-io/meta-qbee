@@ -47,15 +47,6 @@ do_compile:prepend() {
 
 do_install:append() {
   rm -rf ${D}/data
-#  install -d ${D}${sysconfdir}
-#  ln -sf ../..${cf_confdir} ${D}/etc/qbee
-#    install -d ${D}${cf_workdir}/bin
-#    for f in `ls ${D}${bindir}`; do
-#        ln -s ${bindir}/`basename $f` ${D}${cf_workdir}/bin/
-#    done
-#    
-#    # Prevent cfengine native service files
-    #rm -rf ${D}/usr/lib/systemd
 }
 
 do_configure:append() {
