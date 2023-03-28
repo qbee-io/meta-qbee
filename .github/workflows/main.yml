@@ -1,0 +1,34 @@
+name: Qbee Layer - Selfhost
+
+on:
+
+  workflow_dispatch:
+  
+#  schedule:
+#    - cron:  '0 22 * * *'
+    
+
+
+jobs:
+  qbee-build:
+
+    runs-on: self-hosted
+
+    steps:
+    
+      - name: Check out repository code
+        uses: actions/checkout@v2
+    
+    
+      - name: Clone Poky, checkout Hardknott
+        run: |
+          git clone git://git.yoctoproject.org/poky
+          cd poky
+          git checkout hardknott
+          
+          
+      - name: Initialize build environment, add qbee-layer, start build
+        run: |
+          source poky/oe-init-build-env build-hardknott
+          bitbake-layers add-layer ${{ github.workspace }}/meta-qbee
+          bitbake core-image-minimal
