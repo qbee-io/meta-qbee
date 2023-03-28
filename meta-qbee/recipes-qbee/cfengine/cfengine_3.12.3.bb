@@ -15,7 +15,6 @@ DEPENDS = "attr lmdb libpcre openssl curl pkgconfig"
 SRC_URI = "https://cfengine-package-repos.s3.amazonaws.com/tarballs/${BP}.tar.gz \
            file://set-path-of-default-config-file.patch \
            file://processes_select_patch.patch \
-           file://patch_for_openssl_3.patch \
            "
 
 SRC_URI[md5sum] = "d8b60b3a9d6a3ec7c0b6c228cf29b562"
