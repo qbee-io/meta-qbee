@@ -15,18 +15,11 @@ SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${P
 
 SRC_URI[sha256sum] = "71d62dc779200b776c57580b2e29d5eba5a7b7ff2a7389062bbf731f58cb6e17"
 
-inherit update-rc.d systemd
-#inherit systemd
+inherit update-rc.d systemd goarch
 
 INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_SYSROOT_STRIP = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
-
-GO_ARCH:x86-64 = "amd64"
-GO_ARCH:i586 = "386"
-GO_ARCH:i686 = "386"
-GO_ARCH:armv7l = "arm"
-GO_ARCH:aarch64 = "arm64"
 
 SYSTEMD_SERVICE:${PN} = "qbee-agent.service"
 #SYSTEMD_AUTO_ENABLE = "enable"
@@ -47,7 +40,7 @@ do_install () {
   install -m 755 ${WORKDIR}/qbee-agent ${D}/opt/qbee/bin
   install -m 755 ${WORKDIR}/qbee-bootstrap ${D}/opt/qbee/bin
 
-  install -m 755 ${S}/qbee-agent-${GO_ARCH} ${D}${bindir}/qbee-agent
+  install -m 755 ${S}/qbee-agent-${HOST_GOARCH} ${D}${bindir}/qbee-agent
 
   if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
     install -d ${D}/${systemd_unitdir}/system
