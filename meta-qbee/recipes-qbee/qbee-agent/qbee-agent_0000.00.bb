@@ -14,7 +14,7 @@ SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${P
            file://qbee-agent \
            file://qbee-bootstrap"
 
-SRC_URI[sha256sum] = "986f6fec89934a07d4438eaf5bee2f5ee895c168cf0c7ec31f02a181185f8249"
+SRC_URI[sha256sum] = "9dbc222c0f67cec73c81d4092fb84a9f03f06817e8138e23c162e5e565657f68"
 
 inherit update-rc.d systemd goarch
 
