@@ -30,7 +30,7 @@ do_install () {
   install -m 755 -d ${D}${bindir}/ 
   install -m 700 -d ${D}${sysconfdir}/qbee
   install -m 700 -d ${D}${sysconfdir}/qbee/ppkeys
-  install -m 600 ${S}/share/ca.cert ${D}${sysconfdir}/qbee/ppkeys
+  install -m 600 ${S}/share/ssl/ca.cert ${D}${sysconfdir}/qbee/ppkeys
 
   install -m 755 -d ${D}/opt/qbee/bin
   install -m 755 ${S}/bin/qbee-agent ${D}/opt/qbee/bin
