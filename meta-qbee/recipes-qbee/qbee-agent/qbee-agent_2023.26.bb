@@ -1,12 +1,14 @@
 DESCRIPTION = "Installs the qbee-agent pre-compiled binaries onto a Yocto image"
 HOMEPAGE = "https://qbee.io/"
 
-LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+LICENSE="CLOSED"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE;md5=011d72da1f3ad57389b69c20c8a419d5"
 
 RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables"
 
-SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${PV}.tar.gz"
+SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${PV}.tar.gz \
+  file://LICENSE \
+  "
 
 SRC_URI[sha256sum] = "b51e91d42d4f9f38b8724ec37a620c026dc35b9b98ead8a55fd731db8ad434cf"
 
