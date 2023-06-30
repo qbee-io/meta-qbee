@@ -9,7 +9,7 @@ RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables"
 
 SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${PV}.tar.gz"
 
-SRC_URI[sha256sum] = "be6f169e0b800b5439f625ce3153532e171b774e56a8507487a0e050f0b5be3a"
+SRC_URI[sha256sum] = "c1bcb3fe6a5f050ca1f2790af52e28cda2909a069776051242f28f37405ef523"
 
 inherit update-rc.d systemd goarch
 
