@@ -22,7 +22,7 @@ SYSTEMD_SERVICE:${PN} = "qbee-agent.service"
 
 INITSCRIPT_PACKAGES = "${PN}"
 INITSCRIPT_NAME:${PN} = "qbee-agent"
-INITSCRIPT_PARAMS:${PN} = "start 10 2 3 4 5 . stop 70 0 1 6 ."
+INITSCRIPT_PARAMS:${PN} = "defaults 90 10"
 
 FILES:${PN} += "/opt/qbee/* ${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/*"
 
