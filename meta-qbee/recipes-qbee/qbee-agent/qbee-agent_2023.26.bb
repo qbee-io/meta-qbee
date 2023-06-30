@@ -1,10 +1,9 @@
-DESCRIPTION = "This is a simple example recipe that cross-compiles a Go program."
+DESCRIPTION = "Installs the qbee-agent pre-compiled binaries onto a Yocto image"
 HOMEPAGE = "https://qbee.io/"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-#RDEPENDS:${PN} += "coreutils bash kernel-module-nf-conntrack kernel-module-tun sshd iptables"
 RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables"
 
 SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${PV}.tar.gz"
