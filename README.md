@@ -24,3 +24,5 @@ EXTRA_IMAGE_FEATURES += "ssh-server-openssh"
 QBEE_BOOTSTRAP_KEY="<bootstrap_key>"
 QBEE_DEVICE_NAME_TYPE="mac-address"
 ```
+It is also possible to omit `QBEE_DEVICE_NAME_TYPE`, the device will then be identified as using the device hostname.
+Other valid values for `QBEE_DEVICE_NAME_TYPE` is `machine-id`.
