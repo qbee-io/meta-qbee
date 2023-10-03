@@ -42,12 +42,12 @@ do_install () {
 
   if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
     install -d ${D}/${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/qbee-agent.service.yocto ${D}/${systemd_unitdir}/system/qbee-agent.service
+    install -m 0644 ${WORKDIR}/qbee-agent.service ${D}/${systemd_unitdir}/system/qbee-agent.service
   fi
 
   if ${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', 'true', 'false', d)}; then
     install -d ${D}${INIT_D_DIR}
-    install -m 0755 ${S}/init-scripts/sysvinit/qbee-agent.yocto ${D}/${INIT_D_DIR}/qbee-agent
+    install -m 0755 ${WORKDIR}/qbee-agent.init ${D}/${INIT_D_DIR}/qbee-agent
   fi
 
   install -m 0700 -d ${D}/${sysconfdir}/qbee/yocto
@@ -61,13 +61,6 @@ DEVICE_HUB_HOST=${QBEE_DEVICE_HUB_HOST}
 VPN_SERVER=${QBEE_VPN_SERVER}
 EOF
   fi
-#  if [ -f ${B}/qbee-agent.json ]; then
-#    install -m 0600 ${B}/qbee-agent.json ${D}/${sysconfdir}/qbee/qbee-agent.json
-#  fi
-
-#  cat > ${B}/bootstrap-key.txt << EOF
-#$QBEE_BOOTSTRAP_KEY
-#EOF
 
   if [ -f ${B}/bootstrap-env ]; then
     install -m 0600 ${B}/bootstrap-env ${D}${sysconfdir}/qbee/ppkeys/.bootstrap-env
