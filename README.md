@@ -14,7 +14,7 @@ This branch holds layer compatible for yocto codenames:
 
 ```
 git clone -b main https://github.com/qbee-io/meta-qbee layers/meta-qbee
-bitbake-layers add-layer ../layers/meta-qbee/meta-qbee
+bitbake-layers add-layer layers/meta-qbee/meta-qbee
 ```
 
 # Add the following to local.conf
