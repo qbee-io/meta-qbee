@@ -13,7 +13,7 @@ This branch holds layer compatible for yocto codenames:
 # Include the meta-qbee layer in your build
 
 ```
-git clone -b main https://github.com/qbee-io/meta-qbee layers/meta-qbee
+git clone -b master https://github.com/qbee-io/meta-qbee layers/meta-qbee
 bitbake-layers add-layer layers/meta-qbee/meta-qbee
 ```
 
@@ -26,3 +26,5 @@ QBEE_DEVICE_NAME_TYPE="mac-address"
 ```
 It is also possible to omit `QBEE_DEVICE_NAME_TYPE`, the device will then be identified as using the device hostname.
 Other valid values for `QBEE_DEVICE_NAME_TYPE` is `machine-id`.
+
+For more information, please refer to our docs: https://qbee.io/docs/yocto-qbee-agent.html
