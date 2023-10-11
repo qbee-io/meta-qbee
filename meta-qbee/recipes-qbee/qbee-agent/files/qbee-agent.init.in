@@ -14,13 +14,16 @@
 pidfile=/var/run/qbee-agent.pid
 launcher=/usr/bin/qbee-agent
 
+QBEE_CONF_DIR="@QBEE_CONF_DIR@"
+QBEE_STATE_DIR="@QBEE_STATE_DIR@"
+
 start_qbee_agent()
 {
   if [ -x /etc/qbee/yocto/qbee-bootstrap-prep.sh ]; then
     /etc/qbee/yocto/qbee-bootstrap-prep.sh
   fi
   echo "Starting qbee-agent"
-  start-stop-daemon -q -S -m -p $pidfile -b -x $launcher -- -c /data/qbee/etc -s /data/qbee/var start 
+  start-stop-daemon -q -S -m -p $pidfile -b -x $launcher -- -c $QBEE_CONF_DIR -s $QBEE_STATE_DIR start 
 }
 
 stop_qbee_agent()

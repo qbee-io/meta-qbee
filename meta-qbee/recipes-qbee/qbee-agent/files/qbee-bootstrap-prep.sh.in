@@ -1,24 +1,25 @@
 #!/bin/sh
 
 SYSCONF_DIR="/etc/qbee"
-CONF_DIR="/data/qbee/etc"
+YOCTO_DIR="$SYSCONF_DIR/yocto"
+CONF_DIR="@QBEE_CONF_DIR@"
 
 if [ -f "$CONF_DIR/qbee-agent.json" ]; then
   # Assume we have bootstrapped
   exit 0
 fi
 
-if [ ! -f "$SYSCONF_DIR/ppkeys/.bootstrap-env" ]; then
+if [ ! -f "$YOCTO_DIR/.bootstrap-env" ]; then
   # No bootstrap env
   exit 0 
 fi
 
 # shellcheck disable=SC1090
-. "$SYSCONF_DIR/ppkeys/.bootstrap-env"
+. "$YOCTO_DIR/.bootstrap-env"
 
 mkdir -p "$CONF_DIR/ppkeys"
 chmod 700 "$CONF_DIR/ppkeys"
-cp -a "$SYSCONF_DIR/ppkeys/ca.cert" "$CONF_DIR/ppkeys"
+cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
 chmod 600 "$CONF_DIR/ppkeys/ca.cert"
 
 if [ -n "$BOOTSTRAP_KEY" ]; then
