@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 RootDirectory=/
-ExecStart=/usr/bin/qbee-agent -c /data/qbee/etc -s /data/qbee/var start
+ExecStart=/usr/bin/qbee-agent -c @QBEE_CONF_DIR@ -s @QBEE_STATE_DIR@ start
 ExecStartPre=/etc/qbee/yocto/qbee-bootstrap-prep.sh
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
