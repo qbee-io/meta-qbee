@@ -4,6 +4,11 @@ SYSCONF_DIR="/etc/qbee"
 YOCTO_DIR="$SYSCONF_DIR/yocto"
 CONF_DIR="@QBEE_CONF_DIR@"
 
+mkdir -p "$CONF_DIR/ppkeys"
+chmod 700 "$CONF_DIR/ppkeys"
+cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
+chmod 600 "$CONF_DIR/ppkeys/ca.cert"
+
 if [ -f "$CONF_DIR/qbee-agent.json" ]; then
   # Assume we have bootstrapped
   exit 0
@@ -17,11 +22,6 @@ fi
 # shellcheck disable=SC1090
 . "$YOCTO_DIR/.bootstrap-env"
 
-mkdir -p "$CONF_DIR/ppkeys"
-chmod 700 "$CONF_DIR/ppkeys"
-cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
-chmod 600 "$CONF_DIR/ppkeys/ca.cert"
-
 if [ -n "$BOOTSTRAP_KEY" ]; then
   printf '{"bootstrap_key":"%s"' "$BOOTSTRAP_KEY" > "$CONF_DIR/qbee-agent.json"
 fi
@@ -33,8 +33,6 @@ elif [ "$DEVICE_NAME_TYPE" = "mac-address" ]; then
   default_device=$(ip route | awk '/default/{print $5}')
   device_name=$(ip link show "$default_device" | awk '/ether/{print $2}')  
   printf ',"device_name":"%s"' "$device_name" >> "$CONF_DIR/qbee-agent.json" 
-else
-  echo "unsupported"
 fi
 
 if [ -n "$DEVICE_HUB_HOST" ]; then
