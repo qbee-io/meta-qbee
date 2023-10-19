@@ -4,6 +4,52 @@ SYSCONF_DIR="/etc/qbee"
 YOCTO_DIR="$SYSCONF_DIR/yocto"
 CONF_DIR="@QBEE_CONF_DIR@"
 
+resolve_mac() {
+  sysnet="/sys/class/net"
+  ether_header=1
+  min=65535
+  iface=""
+
+  for device in "$sysnet"/*; do
+    if [ ! -f "$device/type" ]; then
+      continue
+    fi
+
+    iface_type=$(cat "$device/type")
+    if [ "$iface_type" -ne "$ether_header" ]; then
+      continue
+    fi
+
+    if echo "$device" | grep -q "$sysnet/dummy" 2>/dev/null; then
+      continue
+    fi
+
+    index=$(cat "$device/ifindex")
+    if [ "$index" -lt "$min" ]; then
+      min=$index
+      iface=$device
+    fi
+  done
+  if [ -z "$iface" ]; then
+    echo "NA"
+  fi
+  cat "$iface/address"
+}
+
+resolve_machine_id() {
+  machine_id_file="/etc/machine-id"
+  if [ -f "$machine_id_file" ]; then
+    cat "$machine_id_file"
+  else
+    echo "NA"
+  fi
+}
+
+mkdir -p "$CONF_DIR/ppkeys"
+chmod 700 "$CONF_DIR/ppkeys"
+cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
+chmod 600 "$CONF_DIR/ppkeys/ca.cert"
+
 if [ -f "$CONF_DIR/qbee-agent.json" ]; then
   # Assume we have bootstrapped
   exit 0
@@ -17,24 +63,16 @@ fi
 # shellcheck disable=SC1090
 . "$YOCTO_DIR/.bootstrap-env"
 
-mkdir -p "$CONF_DIR/ppkeys"
-chmod 700 "$CONF_DIR/ppkeys"
-cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
-chmod 600 "$CONF_DIR/ppkeys/ca.cert"
-
 if [ -n "$BOOTSTRAP_KEY" ]; then
   printf '{"bootstrap_key":"%s"' "$BOOTSTRAP_KEY" > "$CONF_DIR/qbee-agent.json"
 fi
 
 if [ "$DEVICE_NAME_TYPE" = "machine-id" ]; then
-  device_name=$(cat /etc/machine-id)
+  device_name=$(resolve_machine_id)
   printf ',"device_name":"%s"' "$device_name" >> "$CONF_DIR/qbee-agent.json"
 elif [ "$DEVICE_NAME_TYPE" = "mac-address" ]; then
-  default_device=$(ip route | awk '/default/{print $5}')
-  device_name=$(ip link show "$default_device" | awk '/ether/{print $2}')  
+  device_name=$(resolve_mac)
   printf ',"device_name":"%s"' "$device_name" >> "$CONF_DIR/qbee-agent.json" 
-else
-  echo "unsupported"
 fi
 
 if [ -n "$DEVICE_HUB_HOST" ]; then
