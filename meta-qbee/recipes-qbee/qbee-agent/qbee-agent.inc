@@ -1,16 +1,23 @@
 DESCRIPTION = "Installs the qbee-agent pre-compiled binaries onto a Yocto image"
 HOMEPAGE = "https://qbee.io/"
 
-LICENSE="CLOSED"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE;md5=011d72da1f3ad57389b69c20c8a419d5"
-
+# The bootstrap key to use for automatic bootstrap
 QBEE_BOOTSTRAP_KEY ?= ""
+# The device name. Unset variable means that qbee will use hostname. Supported values are "machine-id" and "mac-address"
 QBEE_DEVICE_NAME_TYPE ?= ""
+# device hub host
 QBEE_DEVICE_HUB_HOST ?= "device.app.qbee.io"
+# vpn server host
 QBEE_VPN_SERVER ?= "vpn.app.qbee.io"
-QBEE_REMOTE_ACCESS_DISABLE ?= "false"
+# disable remote access locally, needs to explicitly be set to true if remote access should be disabled
+QBEE_DISABLE_REMOTE_ACCESS ?= ""
+# directory where qbee stores its config and keys (needs to be read/write)
 QBEE_CONF_DIR ?= "/data/qbee/etc"
+# directory where qbee stores its state (needs to be read/write)
 QBEE_STATE_DIR ?= "/data/qbee/var"
+# whether or not qbee-agent should remove any bootstrap seeding info, (ie. remove /etc/qbee/yocto/.bootstrap_env)
+# will only work on systems with read/write rootfs
+QBEE_CLEAN_SEEDING_INFO ?= "false"
 
 RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables"
 
@@ -68,6 +75,8 @@ BOOTSTRAP_KEY=${QBEE_BOOTSTRAP_KEY}
 DEVICE_NAME_TYPE=${QBEE_DEVICE_NAME_TYPE}
 DEVICE_HUB_HOST=${QBEE_DEVICE_HUB_HOST}
 VPN_SERVER=${QBEE_VPN_SERVER}
+CLEAN_SEEDING_INFO=${QBEE_CLEAN_SEEDING_INFO}
+DISABLE_REMOTE_ACCESS=${QBEE_DISABLE_REMOTE_ACCESS}
 EOF
   fi
 

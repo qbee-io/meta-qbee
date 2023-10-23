@@ -45,6 +45,7 @@ resolve_machine_id() {
   fi
 }
 
+# Always make sure we have the updated CA cert
 mkdir -p "$CONF_DIR/ppkeys"
 chmod 700 "$CONF_DIR/ppkeys"
 cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
@@ -83,5 +84,14 @@ if [ -n "$VPN_SERVER" ]; then
   printf ',"vpn_server":"%s"' "$VPN_SERVER" >> "$CONF_DIR/qbee-agent.json"
 fi
 
+if [ "$DISABLE_REMOTE_ACCESS" = "true" ]; then
+  printf ',"disable_remote_access":%s' "$DISABLE_REMOTE_ACCESS" >> "$CONF_DIR/qbee-agent.json"
+fi
+
 printf "}" >> "$CONF_DIR/qbee-agent.json"
 
+if [ "$CLEAN_SEEDING_INFO" = "true" ]; then
+  rm -f "$YOCTO_DIR/.bootstrap-env"
+fi
+
+exit 0
