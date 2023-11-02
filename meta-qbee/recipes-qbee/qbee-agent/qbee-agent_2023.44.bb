@@ -7,4 +7,4 @@ SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${P
   file://qbee-agent.init \ 
   "
 
-SRC_URI[sha256sum] = "35ac22b0822d4c33f97fc9301f4834038d0e421c6adc975393920b9e801834e8"
+SRC_URI[sha256sum] = "edcf319c4ce17e9844df598fa796aa87303a1bf238299dbeeb41c94ff5de5e1d"
