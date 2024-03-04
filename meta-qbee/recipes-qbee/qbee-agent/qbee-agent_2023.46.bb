@@ -10,3 +10,5 @@ SRC_URI[sha256sum] = "cd1462cb267b798b1afe214b5840da1fc2bcbdf4d5bf0b24c0bc7277c5
 
 LICENSE="Apache-2.0"
 LIC_FILES_CHKSUM ?= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+
+RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables ca-certificates os-release"

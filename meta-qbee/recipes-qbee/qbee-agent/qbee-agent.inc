@@ -19,8 +19,6 @@ QBEE_STATE_DIR ?= "/data/qbee/var"
 # will only work on systems with read/write rootfs
 QBEE_CLEAN_SEEDING_INFO ?= "false"
 
-RDEPENDS:${PN} += "coreutils bash kernel-modules sshd iptables"
-
 B = "${WORKDIR}/build"
 
 inherit update-rc.d systemd goarch
@@ -35,17 +33,13 @@ INITSCRIPT_PACKAGES = "${PN}"
 INITSCRIPT_NAME:${PN} = "qbee-agent"
 INITSCRIPT_PARAMS:${PN} = "defaults 90 10"
 
-FILES:${PN} += "/opt/qbee/* ${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/*"
+FILES:${PN} += "${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/* ${prefix}/local/share/ca-certificates/*"
 
 do_install () {
   install -m 0755 -d ${D}${bindir}/ 
   install -m 0700 -d ${D}${sysconfdir}/qbee
   install -m 0700 -d ${D}${sysconfdir}/qbee/yocto
   install -m 0600 ${S}/share/ssl/ca.cert ${D}${sysconfdir}/qbee/yocto
-
-  install -m 0755 -d ${D}/opt/qbee/bin
-  install -m 0755 ${S}/bin/qbee-agent ${D}/opt/qbee/bin
-  install -m 0755 ${S}/bin/qbee-bootstrap ${D}/opt/qbee/bin
 
   install -m 0755 ${S}/qbee-agent-${HOST_GOARCH} ${D}${bindir}/qbee-agent
 
@@ -77,11 +71,24 @@ DEVICE_HUB_HOST=${QBEE_DEVICE_HUB_HOST}
 VPN_SERVER=${QBEE_VPN_SERVER}
 CLEAN_SEEDING_INFO=${QBEE_CLEAN_SEEDING_INFO}
 DISABLE_REMOTE_ACCESS=${QBEE_DISABLE_REMOTE_ACCESS}
+TPM_DEVICE=${QBEE_TPM_DEVICE}
 EOF
   fi
 
   if [ -f ${B}/bootstrap-env ]; then
     install -m 0600 ${B}/bootstrap-env ${D}${sysconfdir}/qbee/yocto/.bootstrap-env
   fi
+
+  # Add qbee backend CA's to system certs for 3rd party integrations
+  install -m 0700 -d ${D}${prefix}/local/share/ca-certificates
+  install -m 0600 ${S}/share/ssl/ca.cert \
+    ${D}${prefix}/local/share/ca-certificates/qbee-io-ca-certificates.crt
 }
 
+# Re-generate system certificates to include qbee CA so that third party systems
+# can communicate with the device backend
+pkg_postinst:${PN} () {
+#!/bin/sh -e
+
+SYSROOT=$D $D$sbindir/update-ca-certificates
+}
