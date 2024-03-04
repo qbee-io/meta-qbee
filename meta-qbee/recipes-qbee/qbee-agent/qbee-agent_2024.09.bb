@@ -1,12 +1,11 @@
 require qbee-agent.inc
 
-SRC_URI = "https://cdn.qbee.io/software/qbee-agent/${PV}/binaries/qbee-agent-${PV}.tar.gz \
+SRC_URI = "git://${GO_IMPORT};branch=main;protocol=https \
   file://qbee-bootstrap-prep.sh.in \
   file://qbee-agent.service.in \
   file://qbee-agent.init.in \
   "
-
-SRC_URI[sha256sum] = "2f490b1dc1b207f5cac031ac05d65a9edd312587d99ca3ce775dca772b946bf5"
+SRCREV = "c30d43b8e64cfef960cee9475b58ae083e4ad246"
 
 LICENSE="Apache-2.0"
 LIC_FILES_CHKSUM ?= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
