@@ -1,4 +1,4 @@
-require qbee-agent-git.inc
+require qbee-agent.inc
 
 SRC_URI = "git://${GO_IMPORT};branch=main;protocol=https \
   file://qbee-bootstrap-prep.sh.in \
