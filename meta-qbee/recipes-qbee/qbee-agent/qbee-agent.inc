@@ -19,7 +19,11 @@ QBEE_CLEAN_SEEDING_INFO ?= "false"
 # Define a TPM device for qbee-agent to use
 QBEE_TPM_DEVICE ?= ""
 
+<<<<<<< HEAD
 RDEPENDS:${PN} += "iptables ca-certificates kernel-module-xt-conntrack"
+=======
+RDEPENDS:${PN} += "kernel-modules iptables ca-certificates"
+>>>>>>> master
 
 B = "${WORKDIR}/build"
 
