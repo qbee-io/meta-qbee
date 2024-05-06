@@ -42,7 +42,7 @@ INITSCRIPT_PACKAGES = "${PN}"
 INITSCRIPT_NAME:${PN} = "qbee-agent"
 INITSCRIPT_PARAMS:${PN} = "defaults 90 10"
 
-FILES:${PN} += "${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/* ${prefix}/local/share/ca-certificates/*"
+FILES:${PN} += "${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/* ${prefix}/local/share/ca-certificates/qbee/*"
 
 python __anonymous() {
   d.appendVarFlag('do_compile', 'network', '1') 
@@ -92,9 +92,9 @@ EOF
   fi
   
   # Add qbee backend CA's to system certs for 3rd party integrations
-  install -m 0700 -d ${D}${prefix}/local/share/ca-certificates
+  install -m 0700 -d ${D}${prefix}/local/share/ca-certificates/qbee
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert \
-    ${D}${prefix}/local/share/ca-certificates/qbee-io-ca-certificates.crt
+    ${D}${prefix}/local/share/ca-certificates/qbee/qbee-io-ca-certificates.crt
 }
 
 # Re-generate system certificates to include qbee CA so that third party systems
