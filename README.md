@@ -36,16 +36,23 @@ QBEE_BOOTSTRAP_KEY="<bootstrap_key>"
 
 Other optional values are:
 ```
-QBEE_DEVICE_NAME_TYPE=""        # default: "" (eg. using system hostname), valid options: <mac-address|machine-id>
-QBEE_DISABLE_REMOTE_ACCESS=""   # default: "" (eg. "false"), valid options are "true"
-QBEE_CONF_DIR=""                # default: "/data/qbee/etc"
-QBEE_STATE_DIR=""               # default: "/data/qbee/var"
-QBEE_DEVICE_HUB_HOST=""         # default: "device.app.qbee.io"
-QBEE_CLEAN_SEEDING_INFO=""      # default: "" (eg. false)
-QBEE_TPM_DEVICE=""              # default: "" (eg. do not use tpm for qbee secrets example: /dev/tpm0)
+# QBEE_DEVICE_NAME_TYPE (default: "" (eg. using system hostname), valid options: <mac-address|machine-id>)
+QBEE_DEVICE_NAME_TYPE=""
+# QBEE_DISABLE_REMOTE_ACCESS (default: "" (eg. "false"), valid options are "<false|true>")
+QBEE_DISABLE_REMOTE_ACCESS=""
+# QBEE_CONF_DIR (default: "/data/qbee/etc")
+QBEE_CONF_DIR=""
+# QBEE_STATE_DIR (default: "/data/qbee/var")
+QBEE_STATE_DIR=""
+# QBEE_DEVICE_HUB_HOST (default: "device.app.qbee.io")
+QBEE_DEVICE_HUB_HOST=""
+# QBEE_CLEAN_SEEDING_INFO (default: "" (eg. false))
+QBEE_CLEAN_SEEDING_INFO=""
+# QBEE_TPM_DEVICE (default: "" (eg. do not use tpm for qbee secrets). Set path to TPM device if needed and available, eg. "/dev/tpm0")
+QBEE_TPM_DEVICE=""
 ```
 
-Versions < 2024.09 will also need the following:
+Versions of qbee-agent  < 2024.09 will also need the following:
 
 ```
 EXTRA_IMAGE_FEATURES += "ssh-server-openssh"
