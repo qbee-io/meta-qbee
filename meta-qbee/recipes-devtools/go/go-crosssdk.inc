@@ -1,8 +1,8 @@
 inherit crosssdk
 
-DEPENDS = "go-native virtual/${TARGET_PREFIX}gcc virtual/nativesdk-${TARGET_PREFIX}compilerlibs virtual/${TARGET_PREFIX}binutils"
+DEPENDS = "go-native virtual/${TARGET_PREFIX}gcc-crosssdk virtual/nativesdk-${TARGET_PREFIX}compilerlibs virtual/${TARGET_PREFIX}binutils-crosssdk"
 PN = "go-crosssdk-${SDK_SYS}"
-PROVIDES = "virtual/${TARGET_PREFIX}go"
+PROVIDES = "virtual/${TARGET_PREFIX}go-crosssdk"
 
 export GOCACHE = "${B}/.cache"
 

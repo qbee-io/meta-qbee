@@ -1,5 +1,5 @@
 DEPENDS = "virtual/${TUNE_PKGARCH}-go go-native"
-DEPENDS:class-nativesdk = "virtual/${TARGET_PREFIX}go"
+DEPENDS:class-nativesdk = "virtual/${TARGET_PREFIX}go-crosssdk"
 PROVIDES = "virtual/${TARGET_PREFIX}go-runtime"
 
 DEBUG_PREFIX_MAP = "\
