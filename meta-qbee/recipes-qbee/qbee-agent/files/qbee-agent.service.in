@@ -3,6 +3,7 @@ Description=The Qbee fleet management agent
 After=network.target
 
 [Service]
+EnvironmentFile=-/etc/default/qbee-agent
 RootDirectory=/
 ExecStart=/usr/bin/qbee-agent -c @QBEE_CONF_DIR@ -s @QBEE_STATE_DIR@ start
 ExecStartPre=/etc/qbee/yocto/qbee-bootstrap-prep.sh
