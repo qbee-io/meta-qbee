@@ -90,7 +90,7 @@ EOF
   if [ -f ${B}/bootstrap-env ]; then
     install -m 0600 ${B}/bootstrap-env ${D}${sysconfdir}/qbee/yocto/.bootstrap-env
   fi
-  
+
   # Add qbee backend CA's to system certs for 3rd party integrations
   install -m 0700 -d ${D}${prefix}/local/share/ca-certificates/qbee
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert \
