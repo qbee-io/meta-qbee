@@ -1,6 +1,7 @@
 [Unit]
 Description=The Qbee fleet management agent
-After=network.target
+Wants=network-online.target
+After=systemd-resolved.service network-online.target
 
 [Service]
 RootDirectory=/
