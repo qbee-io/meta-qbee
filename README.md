@@ -50,6 +50,10 @@ QBEE_DEVICE_HUB_HOST=""
 QBEE_CLEAN_SEEDING_INFO=""
 # QBEE_TPM_DEVICE (default: "" (eg. do not use tpm for qbee secrets). Set path to TPM device if needed and available, eg. "/dev/tpm0")
 QBEE_TPM_DEVICE=""
+# QBEE_CA_CERT (default: "") for private environments. CA cert will need to be added to image by custom recipe.
+QBEE_CA_CERT=""
+# QBEE_SYSTEMD_AFTER_TARGET (default: "network.target"). Set variable if you want to control when qbee-agent is started.
+QBEE_SYSTEMD_AFTER_TARGET="network.target"
 ```
 
 Versions of qbee-agent  < 2024.09 will also need the following:
