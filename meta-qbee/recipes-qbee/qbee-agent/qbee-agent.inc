@@ -18,6 +18,11 @@ QBEE_STATE_DIR ?= "/data/qbee/var"
 QBEE_CLEAN_SEEDING_INFO ?= "false"
 # Define a TPM device for qbee-agent to use
 QBEE_TPM_DEVICE ?= ""
+# Define a custom ca_cert bundle to use for private infrastructure
+QBEE_CA_CERT ?= ""
+# Define which systemd target qbee-agent should start after. Defaults to network.target as qbee-agent can work
+# without network-online.target
+QBEE_SYSTEMD_AFTER_TARGET ?= "network.target"
 
 RDEPENDS:${PN} += "iptables ca-certificates kernel-module-xt-conntrack"
 
@@ -29,6 +34,9 @@ GO_IMPORT = "github.com/qbee-io/qbee-agent"
 GO_EXTRA_LDFLAGS = "-w -s \
   -X go.qbee.io/agent/app.Version=${PV} \
   -X go.qbee.io/agent/app.Commit=${SRCREV}"
+
+# Use static linking
+GO_LINKSHARED = ""
 
 UPSTREAM_CHECK_COMMITS = "1"
 
@@ -64,6 +72,7 @@ do_install:append () {
     install -d ${D}/${systemd_unitdir}/system
     sed -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#;s#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#' \
       ${WORKDIR}/qbee-agent.service.in > ${WORKDIR}/qbee-agent.service
+    sed -i -e 's#[@]QBEE_SYSTEMD_AFTER_TARGET[@]#${QBEE_SYSTEMD_AFTER_TARGET}#' ${WORKDIR}/qbee-agent.service
     install -m 0644 ${WORKDIR}/qbee-agent.service ${D}/${systemd_unitdir}/system/qbee-agent.service
   fi
 
@@ -76,7 +85,7 @@ do_install:append () {
 
   install -m 0700 ${WORKDIR}/qbee-bootstrap-prep.sh ${D}/${sysconfdir}/qbee/yocto
   
-  if [ ! -z "${QBEE_BOOTSTRAP_KEY}" ]; then
+  if [ -n "${QBEE_BOOTSTRAP_KEY}" ]; then
     cat > ${B}/bootstrap-env << EOF
 BOOTSTRAP_KEY=${QBEE_BOOTSTRAP_KEY}
 DEVICE_NAME_TYPE=${QBEE_DEVICE_NAME_TYPE}
@@ -84,13 +93,14 @@ DEVICE_HUB_HOST=${QBEE_DEVICE_HUB_HOST}
 CLEAN_SEEDING_INFO=${QBEE_CLEAN_SEEDING_INFO}
 DISABLE_REMOTE_ACCESS=${QBEE_DISABLE_REMOTE_ACCESS}
 TPM_DEVICE=${QBEE_TPM_DEVICE}
+CA_CERT=${QBEE_CA_CERT}
 EOF
   fi
 
   if [ -f ${B}/bootstrap-env ]; then
     install -m 0600 ${B}/bootstrap-env ${D}${sysconfdir}/qbee/yocto/.bootstrap-env
   fi
-  
+
   # Add qbee backend CA's to system certs for 3rd party integrations
   install -m 0700 -d ${D}${prefix}/local/share/ca-certificates/qbee
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert \

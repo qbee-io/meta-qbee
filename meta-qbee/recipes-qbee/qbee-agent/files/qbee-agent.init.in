@@ -17,6 +17,9 @@ launcher=/usr/bin/qbee-agent
 QBEE_CONF_DIR="@QBEE_CONF_DIR@"
 QBEE_STATE_DIR="@QBEE_STATE_DIR@"
 
+# shellcheck source=/dev/null
+[ -r /etc/default/qbee-agent ] && . /etc/default/qbee-agent
+
 start_qbee_agent()
 {
   if [ -x /etc/qbee/yocto/qbee-bootstrap-prep.sh ]; then
