@@ -94,6 +94,12 @@ if [ "x$TPM_DEVICE" != "x" ]; then
   fi
 fi
 
+if [ "x$CA_CERT" != "x" ]; then
+  if [ -f "$CA_CERT" ]; then
+    printf ',"ca_cert":"%s"' "$CA_CERT" >> "$CONF_DIR/qbee-agent.json"
+  fi
+fi
+
 printf "}" >> "$CONF_DIR/qbee-agent.json"
 
 if [ "$CLEAN_SEEDING_INFO" = "true" ]; then

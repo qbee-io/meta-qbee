@@ -1,6 +1,6 @@
 [Unit]
 Description=The Qbee fleet management agent
-After=network.target
+After=@QBEE_SYSTEMD_AFTER_TARGET@
 
 [Service]
 EnvironmentFile=-/etc/default/qbee-agent
