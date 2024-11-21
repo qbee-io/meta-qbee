@@ -1,5 +1,6 @@
 [Unit]
 Description=The Qbee fleet management agent
+Wants=@QBEE_SYSTEMD_WANTS_TARGET@
 After=@QBEE_SYSTEMD_AFTER_TARGET@
 
 [Service]

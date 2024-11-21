@@ -54,7 +54,24 @@ QBEE_TPM_DEVICE=""
 QBEE_CA_CERT=""
 # QBEE_SYSTEMD_AFTER_TARGET (default: "network.target"). Set variable if you want to control when qbee-agent is started.
 QBEE_SYSTEMD_AFTER_TARGET="network.target"
+# QBEE_SYSTEMD_WANTS_TARGET (default: "$QBEE_SYSTEMD_AFTER_TARGET"). Set variable if you want to control when qbee-agent is started.
+QBEE_SYSTEMD_WANTS_TARGET=""
 ```
+
+# Note on systemd targets
+
+The qbee-agent is designed to work without network connectivity. The default settings might therefore lead to some connection
+error messages during startup. The qbee-agent will re-try the connection, so it will eventually come online once network is ready.
+However, if you want to ovverride this behavior, you can use the `QBEE_SYSTEMD_AFTER_TARGET` and 
+`QBEE_SYSTEMD_AFTER_TARGET` build time variables to make qbee-agent start after full connectivity has been establised.
+
+Eg.
+```
+QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
+QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
+```
+
+# Note on qbee-agent versions < 2024.09
 
 Versions of qbee-agent  < 2024.09 will also need the following:
 

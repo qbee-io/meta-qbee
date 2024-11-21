@@ -23,6 +23,8 @@ QBEE_CA_CERT ?= ""
 # Define which systemd target qbee-agent should start after. Defaults to network.target as qbee-agent can work
 # without network-online.target
 QBEE_SYSTEMD_AFTER_TARGET ?= "network.target"
+# Define which systemd target qbee-agent should start after. Defaults to network.target as qbee-agent can work
+QBEE_SYSTEMD_WANTS_TARGET ?= "${QBEE_SYSTEMD_AFTER_TARGET}"
 
 RDEPENDS:${PN} += "iptables ca-certificates kernel-module-xt-conntrack"
 
@@ -73,6 +75,7 @@ do_install:append () {
     sed -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#;s#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#' \
       ${WORKDIR}/qbee-agent.service.in > ${WORKDIR}/qbee-agent.service
     sed -i -e 's#[@]QBEE_SYSTEMD_AFTER_TARGET[@]#${QBEE_SYSTEMD_AFTER_TARGET}#' ${WORKDIR}/qbee-agent.service
+    sed -i -e 's#[@]QBEE_SYSTEMD_WANTS_TARGET[@]#${QBEE_SYSTEMD_WANTS_TARGET}#' ${WORKDIR}/qbee-agent.service
     install -m 0644 ${WORKDIR}/qbee-agent.service ${D}/${systemd_unitdir}/system/qbee-agent.service
   fi
 
