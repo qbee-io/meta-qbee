@@ -1,0 +1,13 @@
+[Unit]
+Description=service to grow data partition size
+DefaultDependencies=no
+Before=data.mount
+Before=systemd-growfs@data.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/grow-data-part.sh
+
+[Install]
+WantedBy=data.mount

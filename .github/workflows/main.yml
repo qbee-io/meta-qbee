@@ -47,11 +47,53 @@ jobs:
             git pull origin ${BRANCH}
             cd ../..
           fi
-      - name: Update repo meta-qbee
+          
+      - name: Update repo meta-rauc
         run: |
-          pwd
-          ls -ltr
-      
+          if [ ! -d ${BRANCH}/meta-rauc ]; then
+            git clone https://github.com/rauc/meta-rauc.git -b ${BRANCH} ${BRANCH}/meta-rauc
+          else
+            cd ${BRANCH}/meta-rauc
+            git pull origin ${BRANCH}
+            cd ../..
+          fi
+      - name: Update repo meta-rauc-community
+        run: |
+          if [ ! -d ${BRANCH}/meta-rauc-community ]; then
+            git clone https://github.com/rauc/meta-rauc-community.git -b ${BRANCH} ${BRANCH}/meta-rauc-community
+          else
+            cd ${BRANCH}/meta-rauc-community
+            git pull origin ${BRANCH}
+            cd ../..
+          fi
+  
+      - name: Update repo meta-raspberrypi
+        run: |
+          if [ ! -d ${BRANCH}/meta-raspberrypi ]; then
+            git clone https://git.yoctoproject.org/meta-raspberrypi.git -b ${BRANCH} ${BRANCH}/meta-raspberrypi
+          else
+            cd ${BRANCH}/meta-raspberrypi
+            git pull origin ${BRANCH}
+            cd ../..
+          fi
+      - name: Update repo meta-security
+        run: |
+          if [ ! -d ${BRANCH}/meta-security ]; then
+            git clone https://git.yoctoproject.org/meta-security.git -b ${BRANCH} ${BRANCH}/meta-security
+          else
+            cd ${BRANCH}/meta-security
+            git pull origin ${BRANCH}
+            cd ../..
+          fi
+      - name: Update repo meta-virtualization
+        run: |
+          if [ ! -d ${BRANCH}/meta-virtualization ]; then
+            git clone https://git.yoctoproject.org/meta-virtualization.git -b ${BRANCH} ${BRANCH}/meta-virtualization
+          else
+            cd ${BRANCH}/meta-virtualization
+            git pull origin ${BRANCH}
+            cd ../..
+          fi
       - name: Configuring
         run: |
 
@@ -65,19 +107,47 @@ jobs:
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-poky
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-yocto-bsp
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-oe
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-python
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-networking
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-filesystems
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-security/meta-tpm
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-virtualization
+
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-rauc
+
+          if [[ $MACHINE =~ ^qemux86-64$ ]]; then
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-rauc-community/meta-rauc-qemux86
+          fi
+
+          if [[ $MACHINE =~ ^raspberrypi.* ]]; then
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi
+          fi
+
+          if [[ $MACHINE =~ ^raspberrypi5$ ]]; then
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi/meta-raspberrypi-64
+          fi
+
           bitbake-layers add-layer $GITHUB_WORKSPACE/meta-qbee
+          bitbake-layers add-layer $GITHUB_WORKSPACE/meta-container-os
 
           cat > conf/local.conf <<EOF
           CONF_VERSION = "2"
-          INIT_MANAGER = "systemd"
+          DISTRO = "qbee-cos"
           MACHINE="${MACHINE}"
           SSTATE_DIR="$GITHUB_WORKSPACE/sstate"
           TMPDIR="$GITHUB_WORKSPACE/tmp"
           DL_DIR="$GITHUB_WORKSPACE/downloads"
+          WKS_FILE = "qbee-cos-${MACHINE}.wks"
+          INHERIT += "rm_work"
+          EOF
+
+          if [[ $MACHINE =~ ^qemux86-64$ ]]; then
+            cat >> conf/local.conf <<EOF
           MACHINE_FEATURES:append = " pcbios efi" 
           EXTRA_IMAGEDEPENDS += "ovmf"
-          WINHERIT += "rm_work"
-          EOF
+          EOF          
+          fi
 
       - name: Building
         id: build
