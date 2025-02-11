@@ -50,6 +50,7 @@ jobs:
       - name: Update repo meta-qbee
         run: |
           pwd
+          ls -ltr
       
       - name: Configuring
         run: |
