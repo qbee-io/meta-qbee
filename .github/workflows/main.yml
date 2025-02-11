@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        machine: [qemux86-64]
+        machine: [qemux86-64,raspberrypi4-64]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
@@ -94,6 +94,15 @@ jobs:
             git pull origin ${BRANCH}
             cd ../..
           fi
+      - name: Update repo meta-lts-mixins
+        run: |
+          if [ ! -d ${BRANCH}/meta-lts-mixins ]; then
+            git clone https://git.yoctoproject.org/meta-lts-mixins -b ${BRANCH}/u-boot ${BRANCH}/meta-lts-mixins
+          else
+            cd ${BRANCH}/meta-lts-mixins
+            git pull origin ${BRANCH}/u-boot
+            cd ../..
+          fi
       - name: Configuring
         run: |
 
@@ -121,11 +130,11 @@ jobs:
 
           if [[ $MACHINE =~ ^raspberrypi.* ]]; then
             bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-rauc-community/meta-rauc-raspberrypi
           fi
 
           if [[ $MACHINE =~ ^raspberrypi5$ ]]; then
-            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi
-            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-raspberrypi/meta-raspberrypi-64
+            bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-lts-mixins
           fi
 
           bitbake-layers add-layer $GITHUB_WORKSPACE/meta-qbee
@@ -148,8 +157,23 @@ jobs:
           EOF
           fi
 
+          if [[ $MACHINE =~ ^raspberrypi.* ]]; then
+            cat >> conf/local.conf <<EOF
+          ENABLE_UART = "1"
+          RPI_USE_U_BOOT = "1
+          IMAGE_FSTYPES = "ext4 wic.bz2 wic.bmap"
+          SDIMG_ROOTFS_TYPE = "ext4"
+          EOF
+          fi
+
       - name: Building
         id: build
         run: |
           . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
           bitbake -k core-image-minimal
+
+          if [[ $MACHINE =~ ^qemux86-64$ ]]; then
+            bitbake -k qemu-demo-bundle
+          else
+            bitbake -k update-bundle
+          fi
