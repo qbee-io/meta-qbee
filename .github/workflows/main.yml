@@ -160,7 +160,7 @@ jobs:
           if [[ $MACHINE =~ ^raspberrypi.* ]]; then
             cat >> conf/local.conf <<EOF
           ENABLE_UART = "1"
-          RPI_USE_U_BOOT = "1
+          RPI_USE_U_BOOT = "1"
           IMAGE_FSTYPES = "ext4 wic.bz2 wic.bmap"
           SDIMG_ROOTFS_TYPE = "ext4"
           EOF
