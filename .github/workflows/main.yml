@@ -65,7 +65,7 @@ jobs:
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-poky
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-yocto-bsp
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-oe
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-qbee/meta-qbee
+          bitbake-layers add-layer $GITHUB_WORKSPACE/meta-qbee
 
           cat > conf/local.conf <<EOF
           CONF_VERSION = "2"
