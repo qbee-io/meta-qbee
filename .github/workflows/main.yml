@@ -2,11 +2,11 @@
 name: CI
 on:
   push:
-    branches: [ci-cd-rauc]
+    branches: [NOJIRA-qbee-docker-os]
     tags:
       - '*'
   pull_request:
-    branches: [ci-cd-rauc]
+    branches: [NOJIRA-qbee-docker-os]
 
 jobs:
   build:
@@ -17,11 +17,11 @@ jobs:
       options: --privileged --platform linux/amd64  -v /dev/net/tun:/dev/net/tun -v /dev/kvm:/dev/kvm
     strategy:
       matrix:
-        branch: [kirkstone]
-        arch: [x86-64]
+        branch: [scarthgap]
+        machine: [qemux86-64]
     env:
       name: build-and-test
-      ARCH: ${{ matrix.arch }}
+      MACHINE: ${{ matrix.machine }}
       BRANCH: ${{ matrix.branch }}
     steps:
       - uses: actions/checkout@v3
@@ -56,85 +56,36 @@ jobs:
             git pull origin ${BRANCH}
             cd ../..
           fi
-      - name: Update repo meta-rauc
-        run: |
-          if [ ! -d ${BRANCH}/meta-rauc ]; then
-            git clone https://github.com/rauc/meta-rauc.git -b ${BRANCH} ${BRANCH}/meta-rauc
-          else
-            cd ${BRANCH}/meta-rauc
-            git pull origin ${BRANCH}
-            cd ../..
-          fi
-      - name: Update repo meta-rauc-community
-        run: |
-          if [ ! -d ${BRANCH}/meta-rauc-community ]; then
-            git clone https://github.com/rauc/meta-rauc-community.git -b ${BRANCH} ${BRANCH}/meta-rauc-community
-          else
-            cd ${BRANCH}/meta-rauc-community
-            git pull origin ${BRANCH}
-            cd ../..
-          fi
-          # custom wks file
-          cp ci-cd/rauc/qemux86-grub-efi.wks ${BRANCH}/meta-rauc-community/meta-rauc-qemux86/wic/qemux86-grub-efi.wks
-      
-      - name: Extract RAUC keys
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/rauc-ca
-          echo "${{ secrets.RAUC_CA_CERT_BASE64 }}" | base64 -d > $GITHUB_WORKSPACE/rauc-ca/ca.cert.pem
-          echo "${{ secrets.RAUC_DEV_CERT_BASE64 }}" | base64 -d > $GITHUB_WORKSPACE/rauc-ca/dev.cert
-          echo "${{ secrets.RAUC_DEV_KEY_BASE64 }}" | base64 -d > $GITHUB_WORKSPACE/rauc-ca/dev.key
       
       - name: Configuring
         run: |
 
           DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y gettext-base
 
-          rm -f ${BRANCH}/build/conf/local.conf
-          rm -f ${BRANCH}/build/conf/bblayers.conf
-          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build
+          rm -f ${BRANCH}/build-${MACHINE}/conf/local.conf
+          rm -f ${BRANCH}/build-${MACHINE}/conf/bblayers.conf
+          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-poky
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-yocto-bsp
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-oe
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-qbee/meta-qbee
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}//meta-rauc
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}//meta-rauc-community/meta-rauc-qemux86
-          bitbake-layers add-layer $GITHUB_WORKSPACE/ci-cd/rauc/meta-mylayer
 
-          envsubst < $GITHUB_WORKSPACE/ci-cd/rauc/local.conf.template > conf/local.conf
+          cat > conf/local.conf <<EOF
+          CONF_VERSION = "2"
+          INIT_MANAGER = "systemd"
+          MACHINE="${MACHINE}"
+          SSTATE_DIR="$GITHUB_WORKSPACE/sstate"
+          TMPDIR="$GITHUB_WORKSPACE/tmp"
+          DL_DIR="$GITHUB_WORKSPACE/downloads"
+          MACHINE_FEATURES:append = " pcbios efi" 
+          EXTRA_IMAGEDEPENDS += "ovmf"
+          WINHERIT += "rm_work"
+          EOF
 
       - name: Building
         id: build
         run: |
-          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build
+          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
           bitbake -k core-image-minimal
-          bitbake -k qemu-demo-bundle
-
-          image=$(readlink $GITHUB_WORKSPACE/tmp-glibc/deploy/images/qemu${ARCH}/core-image-minimal-qemu${ARCH}.wic)
-          bundle=$(readlink $GITHUB_WORKSPACE/tmp-glibc/deploy/images/qemu${ARCH}/qemu-demo-bundle-qemu${ARCH}.raucb)
-          echo "rauc_image=tmp-glibc/deploy/images/qemu${ARCH}/$image" >> "$GITHUB_OUTPUT"
-          echo "rauc_bundle=tmp-glibc/deploy/images/qemu${ARCH}/$bundle" >> "$GITHUB_OUTPUT"
-          echo "rauc_bundle_filename=$bundle" >> "$GITHUB_OUTPUT"
-
-      - name: Autenticate with qbee.io
-        uses: qbee-io/authenticate-action@v2
-        with:
-          login: "${{ secrets.QBEE_USER_RAUC }}"
-          password: "${{ secrets.QBEE_PASSWORD_RAUC }}"
-          api_host: "${{ secrets.QBEE_API_HOST }}"
-  
-      - name: Upload bundle to qbee.io
-        uses: qbee-io/file-upload-action@v2
-        with:
-          source: ${{ steps.build.outputs.rauc_bundle }}
-          destination: /ci-cd-rauc
-
-      - name: Upload and commit qbee.io configuration
-        uses: qbee-io/config-apply-action@v2
-        with:
-          file_path: ci-cd/rauc/rauc-config-template.json
-          form_type: rauc
-          node_id: ${{ secrets.QBEE_RAUC_NODE_ID }}
-          commit_message: ${{ github.event.head_commit.message}}
-          template_params: rauc_bundle=/ci-cd-rauc/${{ steps.build.outputs.rauc_bundle_filename }}
