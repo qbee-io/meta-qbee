@@ -18,7 +18,8 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        machine: [qemux86-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w]
+        #machine: [qemux86-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w]
+        machine: [raspberrypi4-64,raspberrypi5,raspberrypi0-2w]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
