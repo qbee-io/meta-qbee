@@ -49,13 +49,7 @@ jobs:
           fi
       - name: Update repo meta-qbee
         run: |
-          if [ ! -d ${BRANCH}/meta-qbee ]; then
-            git clone https://github.com/qbee-io/meta-qbee.git -b ${BRANCH} ${BRANCH}/meta-qbee
-          else
-            cd ${BRANCH}/meta-qbee
-            git pull origin ${BRANCH}
-            cd ../..
-          fi
+          pwd
       
       - name: Configuring
         run: |
