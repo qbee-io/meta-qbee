@@ -171,10 +171,16 @@ jobs:
         id: build
         run: |
           . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
+
+          bitbake -k -c cleanall core-image-minimal
           bitbake -k core-image-minimal
 
+          UPDATE_BUNDLE="update-bundle"
+
           if [[ $MACHINE =~ ^qemux86-64$ ]]; then
-            bitbake -k qemu-demo-bundle
-          else
-            bitbake -k update-bundle
+            UPDATE_BUNDLE="qemu-demo-bundle"
           fi
+          
+          bitbake -k -c cleanall $UPDATE_BUNDLE
+          bitbake -k $UPDATE_BUNDLE
+          
