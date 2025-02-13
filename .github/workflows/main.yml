@@ -166,6 +166,7 @@ jobs:
           SDIMG_ROOTFS_TYPE = "ext4"
           ENABLE_SPI_BUS = "1"
           ENABLE_I2C = "1"
+          MACHINE_EXTRA_RDEPENDS += " kernel-modules udev-rules-rpi"
           EOF
           fi
 
