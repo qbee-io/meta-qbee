@@ -13,3 +13,7 @@ do_install:append() {
 
   echo '{"data-root":"/data/docker"}' > ${D}${sysconfdir}/docker/daemon.json
 }
+
+# Copied from k3s
+INHIBIT_PACKAGE_STRIP = "1" 
+INSANE_SKIP:${PN} += "ldflags already-stripped textrel"
