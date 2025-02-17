@@ -191,11 +191,6 @@ jobs:
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
           
-          set -x
-          # Store the image and bundle in the workspace
-          image=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2)
-          bundle=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb)
-
-          cp $image $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic
-          cp $bundle $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
+          cp $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2 $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic.bz2
+          cp $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
           
