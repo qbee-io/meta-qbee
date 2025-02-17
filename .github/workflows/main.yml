@@ -20,10 +20,12 @@ jobs:
         branch: [scarthgap]
         #machine: [qemux86-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w]
         machine: [raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64]
+        poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
       BRANCH: ${{ matrix.branch }}
+      POKY_VERSION: ${{ matrix.poky_version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,9 +35,9 @@ jobs:
       - name: Update repo poky
         run: |
           if [ ! -d ${BRANCH}/poky ]; then
-            git clone git://git.yoctoproject.org/poky -b ${BRANCH} ${BRANCH}/poky
+            git clone git://git.yoctoproject.org/poky -b ${POKY_VERSION} ${BRANCH}/poky-${POKY_VERSION}
           else
-            cd ${BRANCH}/poky
+            cd ${BRANCH}/poky-${POKY_VERSION}
             git pull origin ${BRANCH}
             cd ../..
           fi
@@ -113,9 +115,9 @@ jobs:
           rm -f ${BRANCH}/build-${MACHINE}/conf/bblayers.conf
           . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-poky
-          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky/meta-yocto-bsp
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky-${POKY_VERSION}/meta
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky-${POKY_VERSION}/meta-poky
+          bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky-${POKY_VERSION}/meta-yocto-bsp
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-oe
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-python
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/meta-openembedded/meta-networking
@@ -173,7 +175,7 @@ jobs:
       - name: Building
         id: build
         run: |
-          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
+          . ./${BRANCH}/poky-${POKY_VERSION}/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
           # on spdx issues related to u-boot do, 
           # bitbake -c cleanall u-boot-tools-native
@@ -193,3 +195,9 @@ jobs:
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
           
+          # Store the image and bundle in the workspace
+          image=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic)
+          bundle=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb)
+
+          cp $image $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic
+          cp $bundle $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
