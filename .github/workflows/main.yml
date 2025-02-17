@@ -34,12 +34,8 @@ jobs:
 
       - name: Update repo poky
         run: |
-          if [ ! -d ${BRANCH}/poky ]; then
+          if [ ! -d ${BRANCH}/poky-${POKY_VERSION} ]; then
             git clone git://git.yoctoproject.org/poky -b ${POKY_VERSION} ${BRANCH}/poky-${POKY_VERSION}
-          else
-            cd ${BRANCH}/poky-${POKY_VERSION}
-            git pull origin ${BRANCH}
-            cd ../..
           fi
       - name: Update repo meta-openembedded
         run: |
