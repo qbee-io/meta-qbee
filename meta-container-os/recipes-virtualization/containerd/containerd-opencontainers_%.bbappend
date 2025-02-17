@@ -1,4 +1,4 @@
-ACKAGECONFIG += " upx"
+PACKAGECONFIG += " upx"
 PACKAGECONFIG[upx] = ",,upx-native"
 
 do_compile:append() {
