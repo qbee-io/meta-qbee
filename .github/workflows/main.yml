@@ -175,6 +175,12 @@ jobs:
         run: |
           . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
+          # on spdx issues related to u-boot do, 
+          # bitbake -c cleanall u-boot-tools-native
+          # bitbake u-boot-tools-native
+          # bitbake -c create_spdx u-boot-tools-native
+          # bitbake -c do_create_runtime_spdx u-boot-tools-nativ
+
           bitbake -k -c cleanall core-image-minimal
           bitbake -k core-image-minimal
 

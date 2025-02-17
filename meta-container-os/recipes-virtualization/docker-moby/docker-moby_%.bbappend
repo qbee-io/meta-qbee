@@ -1,11 +1,11 @@
-PACKAGECONFIG += " upx"
-PACKAGECONFIG[upx] = ",,upx-native"
+#PACKAGECONFIG += " upx"
+#PACKAGECONFIG[upx] = ",,upx-native"
 
-do_compile:append() {
-  upx -9 ${WORKDIR}/git/cli/build/docker-linux*
-  upx -9 ${S}/src/import/bundles/dynbinary-daemon/dockerd
-  upx -9 ${WORKDIR}/git/libnetwork/bin/docker-proxy*
-}
+#do_compile:append() {
+#  upx -9 ${WORKDIR}/git/cli/build/docker-linux*
+#  upx -9 ${S}/src/import/bundles/dynbinary-daemon/dockerd
+#  upx -9 ${WORKDIR}/git/libnetwork/bin/docker-proxy*
+#}
 
 do_install:append() {
 
@@ -15,5 +15,5 @@ do_install:append() {
 }
 
 # Copied from k3s
-INHIBIT_PACKAGE_STRIP = "1" 
-INSANE_SKIP:${PN} += "ldflags already-stripped textrel"
+#INHIBIT_PACKAGE_STRIP = "1" 
+#INSANE_SKIP:${PN} += "ldflags already-stripped textrel"
