@@ -190,7 +190,9 @@ jobs:
           
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
-          
+      - name: Store artifacts
+        run: |
+          set -x
           # Store the image and bundle in the workspace
           image=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic)
           bundle=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb)
