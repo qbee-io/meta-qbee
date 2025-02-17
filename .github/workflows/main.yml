@@ -194,7 +194,7 @@ jobs:
         run: |
           set -x
           # Store the image and bundle in the workspace
-          image=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic)
+          image=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2)
           bundle=$(readlink $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb)
 
           cp $image $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic
