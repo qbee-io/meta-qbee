@@ -143,8 +143,8 @@ jobs:
           CONF_VERSION = "2"
           DISTRO = "qbee-cos"
           MACHINE="${MACHINE}"
-          SSTATE_DIR="$GITHUB_WORKSPACE/sstate"
-          TMPDIR="$GITHUB_WORKSPACE/tmp"
+          SSTATE_DIR="$GITHUB_WORKSPACE/sstate-${POKY_VERSION}"
+          TMPDIR="$GITHUB_WORKSPACE/tmp-${POKY_VERSION}"
           DL_DIR="$GITHUB_WORKSPACE/downloads"
           INHERIT += "rm_work"
           EOF
@@ -174,12 +174,11 @@ jobs:
           . ./${BRANCH}/poky-${POKY_VERSION}/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
           # on spdx issues related to u-boot do, 
-          # bitbake -c cleanall u-boot-tools-native
-          # bitbake u-boot-tools-native
+          bitbake -c cleanall u-boot-tools-native core-image-minimal
+          bitbake u-boot-tools-native
           # bitbake -c create_spdx u-boot-tools-native
-          # bitbake -c do_create_runtime_spdx u-boot-tools-nativ
+          # bitbake -c do_create_runtime_spdx u-boot-tools-native
 
-          bitbake -k -c cleanall core-image-minimal
           bitbake -k core-image-minimal
 
           UPDATE_BUNDLE="update-bundle"
@@ -191,6 +190,6 @@ jobs:
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
           
-          cp $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2 $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic.bz2
-          cp $GITHUB_WORKSPACE/tmp/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
+          cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2 $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic.bz2
+          cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
           
