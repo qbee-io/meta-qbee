@@ -109,7 +109,7 @@ jobs:
 
           rm -f ${BRANCH}/build-${MACHINE}/conf/local.conf
           rm -f ${BRANCH}/build-${MACHINE}/conf/bblayers.conf
-          . ./${BRANCH}/poky/oe-init-build-env ${BRANCH}/build-${MACHINE}
+          . ./${BRANCH}/poky-${POKY_VERSION}/oe-init-build-env ${BRANCH}/build-${MACHINE}
 
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky-${POKY_VERSION}/meta
           bitbake-layers add-layer $GITHUB_WORKSPACE/${BRANCH}/poky-${POKY_VERSION}/meta-poky
