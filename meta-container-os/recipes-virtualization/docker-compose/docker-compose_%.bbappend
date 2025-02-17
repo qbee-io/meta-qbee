@@ -1,4 +1,4 @@
-PACKAGECONFIG += " upx"
+PACKAGECONFIG = "docker-plugin upx"
 PACKAGECONFIG[upx] = ",,upx-native"
 
 do_compile:append() {

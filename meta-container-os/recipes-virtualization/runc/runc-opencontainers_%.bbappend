@@ -1,4 +1,9 @@
-PACKAGECONFIG += " upx"
+PACKAGECONFIG = "static \
+                   upx \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'seccomp', 'seccomp', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
+	          "
+
 PACKAGECONFIG[upx] = ",,upx-native"
 
 do_compile:append() {
