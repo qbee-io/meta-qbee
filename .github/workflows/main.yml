@@ -193,7 +193,16 @@ jobs:
           
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
+
+          ext=".wic.bz2"
+          if [[ $MACHINE =~ ^qemux86-64$ ]]; then
+            ext=".wic"
+          fi
+
+          if [[ $MACHINE =~ ^beaglebone-yocto$ ]]; then
+            ext=".wic.xz"
+          fi
           
-          cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.wic.bz2 $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.wic.bz2
+          cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.$ext $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.$ext
           cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
           
