@@ -172,6 +172,13 @@ jobs:
           EOF
           fi
 
+          if [[ $MACHINE =~ ^beaglebone-yocto$ ]]; then
+            cat >> conf/local.conf <<EOF
+          IMAGE_FSTYPES:append = " ext4"
+          IMAGE_BOOT_FILES:append = " boot.scr"
+          EOF
+          fi
+
       - name: Building
         id: build
         run: |
