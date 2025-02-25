@@ -19,7 +19,7 @@ jobs:
       matrix:
         branch: [scarthgap]
         #machine: [qemux86-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w]
-        machine: [raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64]
+        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64]
         poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
     env:
       name: build-and-test
