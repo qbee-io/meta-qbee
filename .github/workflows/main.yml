@@ -150,6 +150,8 @@ jobs:
           TMPDIR="$GITHUB_WORKSPACE/tmp-${POKY_VERSION}"
           DL_DIR="$GITHUB_WORKSPACE/downloads"
           INHERIT += "rm_work"
+          QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
+          QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
           EOF
 
           if [[ $MACHINE =~ ^qemux86-64$ ]]; then
