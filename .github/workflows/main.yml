@@ -18,8 +18,7 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        machine: [beaglebone-yocto]
-        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
+        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
         poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
     env:
       name: build-and-test
