@@ -180,6 +180,16 @@ jobs:
           EOF
           fi
 
+          if [[ ! $MACHINE =~ ^beaglebone-.*$ ]]; then          
+            cat >> conf/local.conf <<EOF
+          QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
+          QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
+          EOF
+          fi          
+
+# BeagleBone has a buggy eth card, do not wait for network online so that we can employ connectivity watch dog
+# https://github.com/beagleboard/beaglebone-black/issues/4
+# https://wp.josh.com/2018/06/04/a-software-only-solution-to-the-vexing-beagle-bone-black-phy-issue/
       - name: Building
         id: build
         run: |
