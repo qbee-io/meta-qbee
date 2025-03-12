@@ -18,7 +18,8 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
+        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
+        machine: [raspberrypi0-2w-64]
         poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
     env:
       name: build-and-test
@@ -150,6 +151,8 @@ jobs:
           TMPDIR="$GITHUB_WORKSPACE/tmp-${POKY_VERSION}"
           DL_DIR="$GITHUB_WORKSPACE/downloads"
           INHERIT += "rm_work"
+          INHERIT += "create-spdx"
+          INHERIT += "cve-check"
           QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
           QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
           EOF
