@@ -19,7 +19,7 @@ jobs:
       matrix:
         branch: [scarthgap]
         #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
-        machine: [raspberrypi0-2w-64]
+        machine: [qemux86-64]
         poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
     env:
       name: build-and-test
@@ -226,4 +226,17 @@ jobs:
           
           cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.$ext $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.$ext
           cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
-          
+
+  build-demo-docker:
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
+
+      - name: Build Docker
+        run: |
+          ls -l ${GITHUB_WORKSPACE}
