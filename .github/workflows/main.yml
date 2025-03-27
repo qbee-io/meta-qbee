@@ -158,6 +158,8 @@ jobs:
           RAUC_KEYRING_FILE = "$GITHUB_WORKSPACE/${BRANCH}/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/rauc/files/ca.cert.pem"
           RAUC_KEY_FILE = "$GITHUB_WORKSPACE/${BRANCH}/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.key.pem"
           RAUC_CERT_FILE = "$GITHUB_WORKSPACE/${BRANCH}/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.cert.pem"
+          RAUC_SLOT_rootfs[fstype] = "ext4"
+          RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
           EOF
 
           if [[ $MACHINE =~ ^qemux86-64$ ]]; then
