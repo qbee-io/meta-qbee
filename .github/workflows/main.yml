@@ -243,4 +243,8 @@ jobs:
 
       - name: Build Docker
         run: |
-          ls -l ${GITHUB_WORKSPACE}
+          mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
+          cp ${GITHUB_WORKSPACE}/tmp-scarthgap-5.0.6/deploy/images/qemux86-64/ovmf.qcow2
+          cp ${GITHUB_WORKSPACE}/qemux86-64-scarthgap-5.0.6.wic ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
+          cd ${GITHUB_WORKSPACE}/meta-container-os/docker
+          docker build -t qbeeio/qbee-demo:scarthgap-5.0.6
