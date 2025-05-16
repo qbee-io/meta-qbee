@@ -18,9 +18,9 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto]
-        machine: [qemux86-64]
-        poky_version: ["scarthgap-5.0.6", "scarthgap-5.0.7"]
+        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
+        #machine: [qemux86-64]
+        poky_version: ["scarthgap-5.0.8", "scarthgap-5.0.9"]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
@@ -236,6 +236,9 @@ jobs:
     needs: build
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
+    env:
+      POKY_VERSION: scarthgap-5.0.8
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -246,7 +249,7 @@ jobs:
       - name: Build Docker
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
-          cp ${GITHUB_WORKSPACE}/tmp-scarthgap-5.0.6/deploy/images/qemux86-64/ovmf.qcow2 ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
-          cp ${GITHUB_WORKSPACE}/qemux86-64-scarthgap-5.0.6.wic ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
+          cp ${GITHUB_WORKSPACE}/tmp-${POKY_VERSION}/deploy/images/qemux86-64/ovmf.qcow2 ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
+          cp ${GITHUB_WORKSPACE}/qemux86-64-${POKY_VERSION}.wic ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
           cd ${GITHUB_WORKSPACE}/meta-container-os/docker
-          docker build -t qbeeio/qbee-demo:scarthgap-5.0.6 .
+          docker build -t qbeeio/qbee-demo:${POKY_VERSION} .
