@@ -20,7 +20,7 @@ jobs:
         branch: [scarthgap]
         machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
         #machine: [qemux86-64]
-        poky_version: ["scarthgap-5.0.8", "scarthgap-5.0.9"]
+        poky_version: ["scarthgap-5.0.10", "scarthgap-5.0.11"]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
@@ -46,7 +46,6 @@ jobs:
             git pull origin ${BRANCH}
             cd ../..
           fi
-          
       - name: Update repo meta-rauc
         run: |
           if [ ! -d ${BRANCH}/meta-rauc ]; then
@@ -65,7 +64,6 @@ jobs:
             git pull origin ${BRANCH}
             cd ../..
           fi
-  
       - name: Update repo meta-raspberrypi
         run: |
           if [ ! -d ${BRANCH}/meta-raspberrypi ]; then
@@ -188,13 +186,12 @@ jobs:
           EOF
           fi
 
-          if [[ ! $MACHINE =~ ^beaglebone-.*$ ]]; then          
+          if [[ ! $MACHINE =~ ^beaglebone-.*$ ]]; then
             cat >> conf/local.conf <<EOF
           QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
           QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
           EOF
-          fi          
-
+          fi
 # BeagleBone has a buggy eth card, do not wait for network online so that we can employ connectivity watch dog
 # https://github.com/beagleboard/beaglebone-black/issues/4
 # https://wp.josh.com/2018/06/04/a-software-only-solution-to-the-vexing-beagle-bone-black-phy-issue/
@@ -216,7 +213,7 @@ jobs:
           if [[ $MACHINE =~ ^qemux86-64$ ]]; then
             UPDATE_BUNDLE="qemu-demo-bundle"
           fi
-          
+
           bitbake -k -c cleanall $UPDATE_BUNDLE
           bitbake -k $UPDATE_BUNDLE
 
@@ -228,7 +225,7 @@ jobs:
           if [[ $MACHINE =~ ^beaglebone-yocto$ ]]; then
             ext="wic.xz"
           fi
-          
+
           cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/core-image-minimal-${MACHINE}.rootfs.$ext $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.$ext
           cp $GITHUB_WORKSPACE/tmp-${POKY_VERSION}/deploy/images/${MACHINE}/${UPDATE_BUNDLE}-${MACHINE}.raucb $GITHUB_WORKSPACE/${MACHINE}-${POKY_VERSION}.raucb
 
