@@ -20,7 +20,7 @@ jobs:
         branch: [scarthgap]
         machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
         #machine: [qemux86-64]
-        poky_version: ["scarthgap-5.0.10", "scarthgap-5.0.11"]
+        poky_version: ["scarthgap-5.0.11", "scarthgap-5.0.11"]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
