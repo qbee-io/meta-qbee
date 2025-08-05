@@ -1,0 +1,5 @@
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4 --fixed-size 32 --sourceparams="loader=u-boot" --use-uuid
+part / --source rootfs --fixed-size 1024M --ondisk mmcblk0 --fstype=ext4 --label rootfs_A --align 4096 --use-uuid
+part / --source rootfs --fixed-size 1024M --ondisk mmcblk0 --fstype=ext4 --label rootfs_B --align 4096 --use-uuid
+part /data --size 10 --ondisk mmcblk0 --fstype=ext4 --label data --align 4096 --fsoptions "x-systemd.growfs"
+bootloader --append="console=ttyS0,115200"
