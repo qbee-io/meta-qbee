@@ -1,0 +1,26 @@
+name: platform-pr-tests
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        kas: [kas-poky-qbee-agent.x86_64.yml]
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    container:
+      image: ghcr.io/siemens/kas/kas:latest # Use the latest kas container image
+      options: --user 0:0
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up KAS
+        run: |
+           kas checkout ${{ matrix.kas }}
+      - name: Build with KAS
+        run: |
+          kas build ${{ matrix.kas }}
