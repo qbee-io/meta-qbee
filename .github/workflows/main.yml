@@ -18,9 +18,9 @@ jobs:
     strategy:
       matrix:
         branch: [scarthgap]
-        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
-        #machine: [qemux86-64]
-        poky_version: ["scarthgap-5.0.11", "scarthgap-5.0.11"]
+        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
+        machine: [qemux86-64]
+        poky_version: ["scarthgap-5.0.10", "scarthgap-5.0.11"]
     env:
       name: build-and-test
       MACHINE: ${{ matrix.machine }}
@@ -234,7 +234,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     env:
-      POKY_VERSION: scarthgap-5.0.8
+      POKY_VERSION: scarthgap-5.0.10
 
     steps:
       - name: Checkout
