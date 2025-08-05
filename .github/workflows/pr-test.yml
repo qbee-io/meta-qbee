@@ -9,7 +9,8 @@ jobs:
   build:
     strategy:
       matrix:
-        kas: [kas-poky-qbee-agent.kirkstone.x86_64.yml]
+        arch: [x86_64]
+        branch: [kirkstone,scarthgap]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
@@ -22,7 +23,7 @@ jobs:
           fetch-depth: 0
       - name: Set up KAS
         run: |
-           kas checkout ${{ matrix.kas }}
+           kas checkout kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
       - name: Build with KAS
         run: |
-          kas build ${{ matrix.kas }}
+          kas build kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml

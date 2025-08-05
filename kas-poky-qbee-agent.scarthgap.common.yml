@@ -14,7 +14,7 @@ repos:
   poky:
     url: https://git.yoctoproject.org/git/poky
     path: layers/poky
-    branch: kirkstone
+    branch: scarthgap
     layers:
       meta:
       meta-poky:
@@ -23,7 +23,7 @@ repos:
   meta-openembedded:
     url: http://git.openembedded.org/meta-openembedded
     path: layers/meta-openembedded
-    branch: kirkstone
+    branch: scarthgap
     layers:
       meta-oe:
 
