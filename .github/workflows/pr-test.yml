@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        kas: [kas-poky-qbee-agent.x86_64.yml]
+        kas: [kas-poky-qbee-agent.kirkstone.x86_64.yml]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
@@ -18,6 +18,9 @@ jobs:
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     steps:
       - uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
       - name: Set up KAS
         run: |
            kas checkout ${{ matrix.kas }}
