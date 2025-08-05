@@ -14,12 +14,11 @@ jobs:
     timeout-minutes: 600
     container:
       image: ghcr.io/siemens/kas/kas:latest # Use the latest kas container image
-      options: --user 0:0
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+      options: --user 0:0 --env KAS_CLONE_DEPTH=0
     steps:
       - uses: actions/checkout@v4
         with:
-          clean: false
+          clean: true
           fetch-depth: 0
       - name: Set up KAS
         run: |
