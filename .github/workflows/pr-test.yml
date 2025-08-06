@@ -22,8 +22,7 @@ jobs:
         SSTATE_DIR: /ci/yocto/sstate
         TMPDIR: /ci/yocto/tmp
       volumes:
-        - /home/runner/ci/yocto/sstate:/ci/yocto/sstate
-        - /home/runner/ci/yocto/downloads:/ci/yocto/downloads
+        - /home/runner/ci/yocto:/ci/yocto
     steps:
       - uses: actions/checkout@v4
         with:
