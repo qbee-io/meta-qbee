@@ -3,8 +3,8 @@ header:
 
 distro: poky
 target:
-  - qbee-agent
-#  - core-image-minimal
+  # build complete image
+  - core-image-minimal
 
 repos:
   meta-qbee:
