@@ -15,7 +15,14 @@ jobs:
     timeout-minutes: 600
     container:
       image: ghcr.io/siemens/kas/kas:latest # Use the latest kas container image
-      options: --user 1000:1000 --env KAS_CLONE_DEPTH=0
+      options: --user 1000:1000
+      env:
+        KAS_CLONE_DEPTH: 0
+        DL_DIR: /ci/yocto/downloads
+        SSTATE_DIR: /ci/yocto/sstate
+      volumes:
+        - /home/runner/ci/yocto/sstate:/ci/yocto/sstate
+        - /home/runner/ci/yocto/downloads:/ci/yocto/downloads
     steps:
       - uses: actions/checkout@v4
         with:
