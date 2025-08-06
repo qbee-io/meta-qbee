@@ -14,13 +14,17 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
-      image: ghcr.io/siemens/kas/kas:latest # Use the latest kas container image
+      image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/yocto/downloads
         SSTATE_DIR: /ci/yocto/sstate
         TMPDIR: /ci/yocto/tmp
+        # Environment variable for bootstrap key
+        # This should be set in the GitHub repository secrets for security
+        # when running integration tests with the platform
+        QBEE_BOOTSTRAP_KEY: my-bootstrap-key
       volumes:
         - /home/runner/ci/yocto:/ci/yocto
     steps:
