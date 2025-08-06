@@ -1,4 +1,4 @@
-name: platform-pr-tests
+name: meta-qbee-pr-tests
 on:
   pull_request:
   push:
@@ -20,6 +20,7 @@ jobs:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/yocto/downloads
         SSTATE_DIR: /ci/yocto/sstate
+        TMPDIR: /ci/yocto/tmp
       volumes:
         - /home/runner/ci/yocto/sstate:/ci/yocto/sstate
         - /home/runner/ci/yocto/downloads:/ci/yocto/downloads
