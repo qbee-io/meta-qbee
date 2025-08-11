@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        arch: [x86_64]
+        arch: [x86_64,arm64]
         branch: [kirkstone,scarthgap]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
