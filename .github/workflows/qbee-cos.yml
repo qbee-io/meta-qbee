@@ -41,4 +41,4 @@ jobs:
            kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
       - name: Build with KAS
         run: |
-          kas build kas/poky/qbee-agent kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+          kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
