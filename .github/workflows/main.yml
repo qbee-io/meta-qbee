@@ -2,11 +2,11 @@
 name: CI
 on:
   push:
-    branches: [NOJIRA-qbee-docker-os]
+    branches: [NOJIRA-qbee-docker-os-disabled]
     tags:
       - '*'
   pull_request:
-    branches: [NOJIRA-qbee-docker-os]
+    branches: [NOJIRA-qbee-docker-os-disabled]
 
 jobs:
   build:

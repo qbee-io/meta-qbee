@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
       - name: Set up KAS
         run: |
-           kas checkout kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+           kas checkout kas/kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
       - name: Build with KAS
         run: |
-          kas build kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+          kas build kas/kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
