@@ -22,6 +22,8 @@ repos:
     url: https://git.openembedded.org/meta-openembedded
     path: layers/meta-openembedded
     branch: scarthgap
+    # use specific commit to avoid https://lists.yoctoproject.org/g/yocto/topic/scarthgap_mbedtls_fetcher/114714774
+    commit: 1c9490d3761301680ad2aaf982ddb0e049eb9d14
     layers:
       meta-oe:
       meta-python:
