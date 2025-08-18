@@ -1,0 +1,68 @@
+header:
+  version: 8
+
+distro: qbee-cos
+
+repos:
+  meta-qbee:
+    layers:
+      meta-qbee:
+      meta-container-os:
+
+  poky:
+    url: https://git.yoctoproject.org/git/poky
+    path: layers/poky
+    branch: scarthgap-5.0.10
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    path: layers/meta-openembedded
+    branch: scarthgap
+    layers:
+      meta-oe:
+      meta-python:
+      meta-filesystems:
+      meta-networking:
+
+  meta-rauc:
+    url: https://github.com/rauc/meta-rauc.git
+    path: layers/meta-rauc
+    branch: scarthgap
+
+  meta-virtualization:
+    url: https://git.yoctoproject.org/meta-virtualization.git
+    path: layers/meta-virtualization
+    branch: scarthgap
+
+  meta-security:
+    url: https://git.yoctoproject.org/meta-security.git
+    path: layers/meta-security
+    branch: scarthgap
+    layers:
+      meta-tpm:
+
+local_conf_header:
+  standard: |
+    CONF_VERSION = "2"
+    INHERIT += "rm_work create-spdx cve-check"
+    QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
+    QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
+    RAUC_KEYRING_FILE = "$GITHUB_WORKSPACE/layers/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/rauc/files/ca.cert.pem"
+    RAUC_KEY_FILE = "$GITHUB_WORKSPACE/layers/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.key.pem"
+    RAUC_CERT_FILE = "$GITHUB_WORKSPACE/layers/meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.cert.pem"
+    RAUC_SLOT_rootfs[fstype] = "ext4"
+    RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
+    QBEE_BOOTSTRAP_KEY="${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    BB_DISKMON_DIRS = "\
+        STOPTASKS,${TMPDIR},1G,100K \
+        STOPTASKS,${DL_DIR},1G,100K \
+        STOPTASKS,${SSTATE_DIR},1G,100K \
+        STOPTASKS,/tmp,100M,100K \
+        HALT,${TMPDIR},100M,1K \
+        HALT,${DL_DIR},100M,1K \
+        HALT,${SSTATE_DIR},100M,1K \
+        HALT,/tmp,10M,1K"
