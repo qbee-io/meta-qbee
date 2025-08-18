@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 600
     container:
       image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
-      options: --user runner:runner
+      options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/qbee-cos/downloads
