@@ -1,5 +1,5 @@
 header:
   version: 8
   includes:
-    - kas-poky-qbee-agent.scarthgap.common.yml
+    - kas/poky/qbee-agent.scarthgap.common.yml
 machine: qemuarm64
