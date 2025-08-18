@@ -7,6 +7,13 @@ machine: qemux86-64
 target:
   - qemu-demo-bundle
 
+repos:
+  meta-rauc-community:
+    url: https://github.com/rauc/meta-rauc-community.git
+    branch: scarthgap
+    layers:
+      meta-rauc-qemux86:
+
 local_conf_header:
   qemux86_64: |
     MACHINE_FEATURES:append = " pcbios efi"
