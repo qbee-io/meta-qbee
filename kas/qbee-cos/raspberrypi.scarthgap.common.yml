@@ -1,5 +1,7 @@
 header:
   version: 8
+  includes:
+    - kas/qbee-cos/scarthgap.common.yml
 
 target:
   - update-bundle
