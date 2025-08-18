@@ -11,7 +11,6 @@ repos:
 
   poky:
     url: https://git.yoctoproject.org/git/poky
-    path: layers/poky
     tag: scarthgap-5.0.10
     layers:
       meta:
@@ -20,7 +19,6 @@ repos:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    path: layers/meta-openembedded
     branch: scarthgap
     # use specific commit to avoid https://lists.yoctoproject.org/g/yocto/topic/scarthgap_mbedtls_fetcher/114714774
     commit: e8fd97d86af86cdcc5a6eb3f301cbaf6a2084943
@@ -32,20 +30,21 @@ repos:
 
   meta-rauc:
     url: https://github.com/rauc/meta-rauc.git
-    path: layers/meta-rauc
     branch: scarthgap
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization.git
-    path: layers/meta-virtualization
     branch: scarthgap
 
   meta-security:
     url: https://git.yoctoproject.org/meta-security.git
-    path: layers/meta-security
     branch: scarthgap
     layers:
       meta-tpm:
+
+  meta-lts-mixins:
+    url: https://git.yoctoproject.org/meta-lts-mixins
+    branch: scarthgap/u-boot
 
 local_conf_header:
   standard: |
