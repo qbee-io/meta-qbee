@@ -12,7 +12,7 @@ repos:
   poky:
     url: https://git.yoctoproject.org/git/poky
     path: layers/poky
-    branch: scarthgap-5.0.10
+    tag: scarthgap-5.0.10
     layers:
       meta:
       meta-poky:
