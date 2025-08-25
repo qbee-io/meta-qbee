@@ -19,3 +19,4 @@ local_conf_header:
     MACHINE_FEATURES:append = " pcbios efi"
     EXTRA_IMAGEDEPENDS += "ovmf"
     EXTRA_IMAGE_FEATURES = "debug-tweaks"
+    IMAGE_INSTALL:append = " dhcpcd"
