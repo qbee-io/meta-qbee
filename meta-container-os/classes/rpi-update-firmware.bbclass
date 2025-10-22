@@ -12,5 +12,3 @@ rpi_install_firmware_to_rootfs() {
     cp ${DEPLOY_DIR_IMAGE}/boot.scr ${IMAGE_ROOTFS}/boot/
 }
 ROOTFS_POSTPROCESS_COMMAND += "rpi_install_firmware_to_rootfs; "
-
-IMAGE_INSTALL:append = " update-firmware-state-script"
