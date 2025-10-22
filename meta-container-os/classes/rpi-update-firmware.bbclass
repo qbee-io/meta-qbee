@@ -1,7 +1,7 @@
 rpi_install_firmware_to_rootfs() {
   install -d ${IMAGE_ROOTFS}/boot.image/firmware/overlays
 
-  cp ${DEPLOY_DIR_IMAGE}/${BOOTFILES_DIR_NAME}/* ${IMAGE_ROOTFS}/boot.image/firmware/
+  cp -a ${DEPLOY_DIR_IMAGE}/${BOOTFILES_DIR_NAME}/* ${IMAGE_ROOTFS}/boot.image/firmware/
 
   find ${DEPLOY_DIR_IMAGE}/ -type l \( -iname "*.dtb" \) -exec cp {} ${IMAGE_ROOTFS}/boot.image/ \;
   find ${DEPLOY_DIR_IMAGE}/ -type l \( -iname "*.dtbo" \) -exec cp {} ${IMAGE_ROOTFS}/boot.image/overlays/ \;
