@@ -29,7 +29,6 @@ local_conf_header:
 
     # make sure to update the rpi firmware
     INHERIT += "rpi-update-firmware"
-    SRC_URI += "file://post-install.sh"
 
     # Hook file and type definition
     RAUC_BUNDLE_HOOKS[file] = "post-install.sh"
