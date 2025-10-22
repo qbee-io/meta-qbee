@@ -26,3 +26,11 @@ local_conf_header:
     ENABLE_SPI_BUS = "1"
     ENABLE_I2C = "1"
     IMAGE_INSTALL:append = " kernel-modules udev-rules-rpi"
+
+    # make sure to update the rpi firmware
+    INHERIT += "rpi-update-firmware"
+    SRC_URI += "file://post-install.sh"
+
+    # Hook file and type definition
+    RAUC_BUNDLE_HOOKS[file] = "post-install.sh"
+    RAUC_SLOT_rootfs[hooks] ?= "post-install"
