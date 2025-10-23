@@ -15,7 +15,7 @@ jobs:
       matrix:
         #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
         #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,qemux86-64]
-        machine: [qemux86-64]
+        machine: [raspberrypi3-64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
