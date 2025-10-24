@@ -27,7 +27,7 @@ update_firmware() {
   done
 
   # Copy overlays
-  find "$RAUC_MOUNT_POINT/boot.image" -maxdepth 1 -type f -name "*.dtbo" | while IFS= read -r f; do
+  find "$RAUC_MOUNT_POINT/boot.image/overlays" -maxdepth 1 -type f -name "*.dtbo" | while IFS= read -r f; do
     safe_copy "$f" "/boot/overlays/$(basename "$f")"
   done
 }
