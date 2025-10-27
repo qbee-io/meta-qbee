@@ -24,7 +24,7 @@ jobs:
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/qbee-cos/downloads
-        SSTATE_DIR: /ci/qbee-cos/sstate
+        SSTATE_DIR: /ci/qbee-cos/sstate/${TARGET_ARCH}
         TMPDIR: /ci/qbee-cos/tmp
         # Environment variable for bootstrap key
         # This should be set in the GitHub repository secrets for security
