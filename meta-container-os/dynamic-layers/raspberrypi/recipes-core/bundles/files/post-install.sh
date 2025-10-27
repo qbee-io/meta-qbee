@@ -11,13 +11,13 @@ safe_copy() {
 
   # do not copy if the files are the same
   if cmp -s "$1" "$2"; then
-    return
+    return 0
   fi
 
-  cp -a "$1" "$2".tmp || return $?
-  sync "$2".tmp || return $?
+  cp "$1" "$2".tmp || return $?
+  sync || return $?
   mv "$2".tmp "$2" || return $?
-  sync "$(dirname "$2")" || return $?
+  sync || return $?
 }
 
 update_firmware() {
