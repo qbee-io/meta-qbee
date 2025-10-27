@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
-        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,qemux86-64]
-        machine: [raspberrypi3-64]
+        machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,qemux86-64]
+        #machine: [raspberrypi3-64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
@@ -39,7 +39,7 @@ jobs:
           fetch-depth: 0
       - name: Set up KAS
         run: |
-           kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+          kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
       - name: Build with KAS
         run: |
           kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
@@ -49,7 +49,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     env:
-      POKY_VERSION: scarthgap-5.0.10
+      POKY_VERSION: scarthgap-5.0.11
 
     steps:
       - name: Checkout

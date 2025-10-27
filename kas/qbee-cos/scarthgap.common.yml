@@ -11,7 +11,7 @@ repos:
 
   poky:
     url: https://git.yoctoproject.org/git/poky
-    tag: scarthgap-5.0.10
+    tag: scarthgap-5.0.11
     layers:
       meta:
       meta-poky:
@@ -20,8 +20,6 @@ repos:
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
     branch: scarthgap
-    # use specific commit to avoid https://lists.yoctoproject.org/g/yocto/topic/scarthgap_mbedtls_fetcher/114714774
-    commit: e8fd97d86af86cdcc5a6eb3f301cbaf6a2084943
     layers:
       meta-oe:
       meta-python:
