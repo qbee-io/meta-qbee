@@ -69,7 +69,19 @@ jobs:
       - name: Build with KAS
         run: |
           kas build kas/poky/qbee-agent.scarthgap.rauc-simple.yml
+  build-demo-docker:
 
+    needs: rauc-simple-build
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    steps:
+      
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
+          
       - name: Build Docker
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
