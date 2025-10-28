@@ -40,3 +40,42 @@ jobs:
       - name: Build with KAS
         run: |
           kas build kas/poky/qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+  
+  rauc-simple-build:
+    needs: build
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    container:
+      image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
+      options: --user 1000:1000
+      env:
+        KAS_CLONE_DEPTH: 0
+        DL_DIR: /ci/yocto/downloads
+        SSTATE_DIR: /ci/yocto/sstate
+        TMPDIR: /ci/yocto/tmp
+      volumes:
+        - /home/runner/ci/yocto:/ci/yocto
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
+      
+      - name: Set up KAS
+        run: |
+           kas checkout kas/poky/qbee-agent.scarthgap.rauc-simple.yml
+      
+      - name: Build with KAS
+        run: |
+          kas build kas/poky/qbee-agent.scarthgap.rauc-simple.yml
+
+      - name: Build Docker
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
+          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
+            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
+          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
+            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
+          cd ${GITHUB_WORKSPACE}/meta-container-os/docker
+          docker build -t qbeeio/qbee-demo:rauc-latest .
