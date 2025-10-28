@@ -73,9 +73,13 @@ jobs:
       - name: Build Docker
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
-          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
+          
+          cp /home/runner/ci/yocto/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
             ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
-          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
+
+          cp /home/runner/ci/yocto/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
             ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
+
           cd ${GITHUB_WORKSPACE}/meta-container-os/docker
+          
           docker build -t qbeeio/qbee-demo:rauc-latest .
