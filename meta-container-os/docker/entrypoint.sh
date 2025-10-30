@@ -59,7 +59,10 @@ if [[ -S $QBEE_TPM2_DIR/swtpm-sock ]]; then
 fi
 
 /poky/scripts/wic cp /run/.bootstrap-env $IMAGE:4/etc/qbee/yocto/
-/poky/scripts/wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/ppkeys/ca.cert.custom
+
+if [[ -n $QBEE_DEMO_DEVICE_CA_CERT ]]; then
+  /poky/scripts/wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/ppkeys/ca.cert.custom
+fi
 
 qemu-system-x86_64 \
   -device virtio-net-pci,netdev=net0,mac=$MAC \
