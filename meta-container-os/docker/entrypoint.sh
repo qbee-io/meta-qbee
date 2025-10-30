@@ -28,7 +28,6 @@ setup_emulated_tpm
 QBEE_DEMO_DEVICE_HUB_HOST=${QBEE_DEMO_DEVICE_HUB_HOST:-device.app.qbee.io}
 QBEE_DEMO_DEVICE_HUB_PORT=${QBEE_DEMO_DEVICE_HUB_PORT:-443}
 
-
 # Generate the bootstrap-env file for this device
 cat > /run/.bootstrap-env << EOF
 BOOTSTRAP_KEY=${BOOTSTRAP_KEY}
@@ -39,15 +38,13 @@ CLEAN_SEEDING_INFO=true
 EOF
 
 if [[ -n $QBEE_DEMO_DEVICE_CA_CERT ]]; then
-  mkdir -p /etc/qbee/ppkeys
   echo "$QBEE_DEMO_DEVICE_CA_CERT" | base64 -d > /run/ca.cert.custom
   chmod 600 /run/ca.cert.custom
   cat >> /run/.bootstrap-env << EOF
-CA_CERT=/etc/qbee/ppkeys/ca.cert.custom
+CA_CERT=/etc/qbee/yocto/ca.cert.custom
 EOF
 
 fi
-
 
 if [[ -c /dev/kvm ]]; then
   QEMU_OPTIONS="$QEMU_OPTIONS -machine type=pc,accel=kvm -smp 4 -cpu host"
@@ -61,7 +58,7 @@ fi
 /poky/scripts/wic cp /run/.bootstrap-env $IMAGE:4/etc/qbee/yocto/
 
 if [[ -n $QBEE_DEMO_DEVICE_CA_CERT ]]; then
-  /poky/scripts/wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/ppkeys/ca.cert.custom
+  /poky/scripts/wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/yocto/ca.cert.custom
 fi
 
 qemu-system-x86_64 \
