@@ -34,14 +34,14 @@ BOOTSTRAP_KEY=${BOOTSTRAP_KEY}
 DEVICE_NAME_TYPE=mac-address
 DEVICE_HUB_HOST=${QBEE_DEMO_DEVICE_HUB_HOST}
 DEVICE_HUB_PORT=${QBEE_DEMO_DEVICE_HUB_PORT}
-CLEAN_SEEDING_INFO=false
+CLEAN_SEEDING_INFO=true
 EOF
 
 if [[ -n $QBEE_DEMO_DEVICE_CA_CERT ]]; then
   echo "$QBEE_DEMO_DEVICE_CA_CERT" | base64 -d > /run/ca.cert.custom
   chmod 600 /run/ca.cert.custom
   cat >> /run/.bootstrap-env << EOF
-CA_CERT=/etc/qbee/yocto/ca.cert.custom.debug
+CA_CERT=/etc/qbee/yocto/ca.cert.custom
 EOF
 
 fi
