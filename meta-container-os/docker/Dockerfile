@@ -8,6 +8,4 @@ RUN apk add qemu-system-x86_64 bash parted python3 e2fsprogs-extra swtpm
 COPY --from=build /src/poky/scripts /poky/scripts
 COPY /images /qbee-demo/images
 COPY /entrypoint.sh /qbee-demo/entrypoint.sh
-CMD ["/bin/sh", "/qbee-demo/entrypoint.sh" ]
-
-#/python3/wic cp /image/.bootstrap-env /image/core-minimal.wic:4/etc/qbee/yocto/
+CMD ["/bin/bash", "/qbee-demo/entrypoint.sh" ]
