@@ -1,0 +1,69 @@
+permissions:
+  contents: read
+name: meta-qbee-qbee-cos
+on:
+  push:
+    branches: [NOJIRA-qbee-docker-os]
+    tags:
+      - '*'
+  pull_request:
+    branches: [NOJIRA-qbee-docker-os]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,beaglebone-yocto,qemux86-64]
+        #machine: [raspberrypi3-64,raspberrypi4-64,raspberrypi5,raspberrypi0-2w-64,qemux86-64]
+        machine: [qemux86-64]
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    container:
+      image: ghcr.io/siemens/kas/kas:4.8.2 # Use the latest kas container image
+      options: --user 1000:1000
+      env:
+        KAS_CLONE_DEPTH: 0
+        DL_DIR: /ci/qbee-cos/downloads
+        SSTATE_DIR: /ci/qbee-cos/sstate
+        TMPDIR: /ci/qbee-cos/tmp
+        # Environment variable for bootstrap key
+        # This should be set in the GitHub repository secrets for security
+        # when running integration tests with the platform
+        QBEE_BOOTSTRAP_KEY: my-bootstrap-key
+      volumes:
+        - /home/runner/ci/qbee-cos:/ci/qbee-cos
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
+      - name: Set up KAS
+        run: |
+          kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+      - name: Build with KAS
+        run: |
+          kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+
+  build-demo-docker:
+    needs: build
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 600
+    env:
+      POKY_VERSION: scarthgap-5.0.11
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
+
+      - name: Build Docker
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
+          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
+            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
+          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
+            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
+          cd ${GITHUB_WORKSPACE}/meta-container-os/docker
+          docker build -t qbeeio/qbee-demo:${POKY_VERSION} .

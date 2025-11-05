@@ -1,0 +1,35 @@
+header:
+  version: 8
+  includes:
+    - kas/qbee-cos/scarthgap.common.yml
+
+target:
+  - update-bundle
+
+repos:
+  meta-rauc-community:
+    url: https://github.com/rauc/meta-rauc-community.git
+    branch: scarthgap
+    layers:
+      meta-rauc-raspberrypi:
+
+  meta-raspberrypi:
+    url: https://git.yoctoproject.org/meta-raspberrypi.git
+    branch: scarthgap
+
+local_conf_header:
+  raspberrypi: |
+    ENABLE_UART = "1"
+    RPI_USE_U_BOOT = "1"
+    IMAGE_FSTYPES = "ext4 wic.bz2 wic.bmap"
+    SDIMG_ROOTFS_TYPE = "ext4"
+    ENABLE_SPI_BUS = "1"
+    ENABLE_I2C = "1"
+    IMAGE_INSTALL:append = " kernel-modules udev-rules-rpi"
+
+    # make sure to update the rpi firmware
+    INHERIT += "rpi-update-firmware"
+
+    # Hook file and type definition
+    RAUC_BUNDLE_HOOKS[file] = "post-install.sh"
+    RAUC_SLOT_rootfs[hooks] ?= "post-install"

@@ -80,6 +80,10 @@ if [ -n "$DEVICE_HUB_HOST" ]; then
   printf ',"server":"%s"' "$DEVICE_HUB_HOST" >> "$CONF_DIR/qbee-agent.json"
 fi
 
+if [ -n "$DEVICE_HUB_PORT" ]; then
+  printf ',"port":"%s"' "$DEVICE_HUB_PORT" >> "$CONF_DIR/qbee-agent.json"
+fi
+
 if [ -n "$VPN_SERVER" ]; then
   printf ',"vpn_server":"%s"' "$VPN_SERVER" >> "$CONF_DIR/qbee-agent.json"
 fi
