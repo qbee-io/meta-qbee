@@ -115,6 +115,6 @@ EOF
 pkg_postinst:${PN} () {
 #!/bin/sh -e
 
-SYSROOT=$D $D$sbindir/update-ca-certificates
+$D$sbindir/update-ca-certificates --sysroot $D
 }
 
