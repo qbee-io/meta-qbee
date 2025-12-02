@@ -112,7 +112,7 @@ EOF
 
 # Re-generate system certificates to include qbee CA so that third party systems
 # can communicate with the device backend
-pkg_postinst:${PN} () {
+pkg_postinst_ontarget:${PN} () {
 #!/bin/sh -e
 
 SYSROOT=$D $D$sbindir/update-ca-certificates
