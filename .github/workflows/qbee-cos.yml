@@ -40,6 +40,8 @@ jobs:
       - name: Set up KAS
         run: |
           kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+          bitbake -c cleansstate lz4-native
+          bitbake lz4-native
       - name: Build with KAS
         run: |
           kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
