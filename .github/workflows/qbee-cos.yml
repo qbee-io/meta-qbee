@@ -42,7 +42,7 @@ jobs:
           kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
       - name: Build with KAS
         run: |
-          kas shell kas/qbee-cos/${{matrix.machine}}.scarthgap.yml -c 'bitbake -c cleansstate lz4-native && bitbake lz4-native'
+          # kas shell kas/qbee-cos/${{matrix.machine}}.scarthgap.yml -c 'bitbake -c cleansstate lz4-native && bitbake lz4-native'
           kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
 
   build-demo-docker:
@@ -50,7 +50,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     env:
-      POKY_VERSION: scarthgap-5.0.14
+      POKY_VERSION: scarthgap-5.0.15
 
     steps:
       - name: Checkout
