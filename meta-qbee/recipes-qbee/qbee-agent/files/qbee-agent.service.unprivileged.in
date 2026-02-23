@@ -1,0 +1,10 @@
+[Service]
+User=@QBEE_EXEC_USER@
+Group=@QBEE_EXEC_USER@
+# reset the list
+ExecStartPre=
+# run the following as root on startup
+ExecStartPre=+/bin/mkdir -p /run/qbee
+ExecStartPre=+/bin/chown @QBEE_EXEC_USER@:@QBEE_EXEC_USER@ /run/qbee
+ExecStartPre=+/etc/qbee/yocto/qbee-bootstrap-prep.sh
+Environment=SHELL=/bin/sh

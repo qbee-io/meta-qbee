@@ -1,0 +1,23 @@
+# Example sudoers file to use for the unprivileged qbee-agent user, but allow certain
+# operations with sudo access
+
+# Service management
+Cmnd_Alias SYSTEMCTL_CMDS = /bin/systemctl, /usr/bin/systemctl
+Cmnd_Alias SERVICE_CMDS = SYSTEMCTL_CMDS
+
+# Firewall management
+Cmnd_Alias FIREWALL_CMDS = /usr/sbin/iptables, /sbin/iptables
+
+# A/B updates (rauc) and connectivity watchdog
+Cmnd_Alias SHUTDOWN_CMDS = /usr/sbin/shutdown, /sbin/shutdown
+
+# A/B updates (rauc)
+Cmnd_Alias OTA_CMDS = /usr/bin/rauc
+
+# User management
+Cmnd_Alias USER_CMDS = /usr/sbin/useradd, /sbin/useradd, /usr/sbin/userdel, /sbin/userdel
+
+# Suppress logging of sudo executions for user
+Defaults:qbee-agent !syslog, env_keep+="HTTP_PROXY HTTPS_PROXY http_proxy https_proxy NO_PROXY no_proxy"
+
+@QBEE_EXEC_USER@ ALL=(ALL) NOPASSWD: SHUTDOWN_CMDS, OTA_CMDS, FIREWALL_CMDS, USER_CMDS, SERVICE_CMDS
