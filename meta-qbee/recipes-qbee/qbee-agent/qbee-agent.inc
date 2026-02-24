@@ -140,7 +140,7 @@ EOF
     ${D}${prefix}/local/share/ca-certificates/qbee/qbee-io-ca-certificates.crt
 
   # If QBEE_EXEC_USER is set, we add a sudoers file and a systemd override.
-  if [ -n "${QBEE_EXEC_USER}" ]; then    
+  if [ -n "${QBEE_EXEC_USER}" ]; then
     # install systemd override for unprivileged execution
     install -m 0750 -d ${D}${sysconfdir}/systemd/system/${PN}.service.d
     sed -i -e 's#[@]QBEE_EXEC_USER[@]#${QBEE_EXEC_USER}#g' \
