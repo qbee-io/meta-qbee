@@ -50,25 +50,35 @@ inherit update-rc.d systemd go-mod useradd
 
 python __anonymous() {
     # Check your custom variable
-    elevation = d.getVar('QBEE_ELEVATION_COMMAND') or ""
+    elevation_command = d.getVar('QBEE_ELEVATION_COMMAND') or ""
     exec_user = d.getVar('QBEE_EXEC_USER') or ""
 
-    if exec_user and not elevation:
+    if exec_user and not elevation_command:
       bb.warn("QBEE_EXEC_USER is set to '%s' but QBEE_ELEVATION_COMMAND is not set. You must set QBEE_ELEVATION_COMMAND to a valid elevation command (e.g. 'sudo') if you want to run qbee-agent as a non-root user." % exec_user)
 
-    if elevation and not exec_user:
-      bb.warn("QBEE_ELEVATION_COMMAND is set to '%s' but QBEE_EXEC_USER is not set. You should set QBEE_EXEC_USER to a non-root user if you want to run qbee-agent as a non-root user." % elevation)
+    if elevation_command and not exec_user:
+      bb.warn("QBEE_ELEVATION_COMMAND is set to '%s' but QBEE_EXEC_USER is not set. You should set QBEE_EXEC_USER to a non-root user if you want to run qbee-agent as a non-root user." % elevation_command)
 
     # add sudo to RRECOMMENDS if the elevation command includes 'sudo' to allow users to use sudo for privileged operations without explicitly installing sudo in that case
-    if 'sudo' in elevation:
+    if 'sudo' in elevation_command:
       d.appendVar('RRECOMMENDS:%s' % d.getVar('PN'), ' sudo')
+
+    if elevation_command:
+      # check that we have a valid json array for the elevation command and check that the first element is an absolute path
+      import json
+      try:
+        cmd_array = json.loads(elevation_command)
+        if not cmd_array or not isinstance(cmd_array, list) or not cmd_array[0].startswith('/'):
+          bb.fatal("QBEE_ELEVATION_COMMAND is set to '%s' but is not a valid JSON array with an absolute path as the first element. Please set QBEE_ELEVATION_COMMAND to a valid JSON array (e.g. '[\"/usr/bin/sudo\", \"-n\"]')" % elevation_command)
+      except json.JSONDecodeError:
+        bb.fatal("QBEE_ELEVATION_COMMAND is set to '%s' but is not a valid JSON array. Please set QBEE_ELEVATION_COMMAND to a valid JSON array (e.g. '[\"/usr/bin/sudo\", \"-n\"]')" % elevation_command)
 }
 
 # add useradd package and params if QBEE_EXEC_USER is set to create a non-root user for qbee-agent execution
 # this needs to be defined here for the useradd class to pick it up, we cannot use a conditional inside the
 # variable definition itself as that would not work with how useradd parses the variables
-USERADD_PACKAGES += "${@ '${PN}' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
-USERADD_PARAM:${PN} = "${@ '-m -s /sbin/nologin ' + d.getVar('QBEE_EXEC_USER') if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
+USERADD_PACKAGES += "${@ '${PN}' if d.getVar('QBEE_EXEC_USER') else ''}"
+USERADD_PARAM:${PN} = "${@ '-M -s /sbin/nologin -d /nonexistent ' + d.getVar('QBEE_EXEC_USER') if d.getVar('QBEE_EXEC_USER') else ''}"
 
 GO_IMPORT = "github.com/qbee-io/qbee-agent"
 GO_EXTRA_LDFLAGS = "-w -s \
@@ -91,8 +101,7 @@ INITSCRIPT_NAME:${PN} = "qbee-agent"
 INITSCRIPT_PARAMS:${PN} = "defaults 90 10"
 
 FILES:${PN} += "${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/* ${prefix}/local/share/ca-certificates/qbee/*"
-FILES:${PN} += "${@ '${sysconfdir}/sudoers.d/qbee-agent' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
-FILES:${PN} += "${@ '${sysconfdir}/systemd/system/${PN}.service.d/*' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
+FILES:${PN} += "${@ '${sysconfdir}/systemd/system/${PN}.service.d/*' if d.getVar('QBEE_EXEC_USER') else ''}"
 
 SRC_URI:append = "file://qbee-agent.service.unprivileged.in \
   file://qbee-agent.service.supplementary-groups.in \
@@ -154,7 +163,7 @@ EOF
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert \
     ${D}${prefix}/local/share/ca-certificates/qbee/qbee-io-ca-certificates.crt
 
-  # If QBEE_EXEC_USER is set, we add a sudoers file and a systemd override.
+  # If QBEE_EXEC_USER is set, we add a systemd override.
   if [ -n "${QBEE_EXEC_USER}" ]; then
     # install systemd override for unprivileged execution
     install -m 0750 -d ${D}${sysconfdir}/systemd/system/${PN}.service.d

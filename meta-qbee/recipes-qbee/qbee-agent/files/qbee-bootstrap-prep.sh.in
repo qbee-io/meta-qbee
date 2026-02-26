@@ -57,7 +57,7 @@ chmod 600 "$CONF_DIR/ppkeys/ca.cert"
 if [ -f "$CONF_DIR/qbee-agent.json" ]; then
   # make sure permissions are correct
   if [ -n "$EXEC_USER" ]; then
-    chown -R "$EXEC_USER":"$EXEC_USER" "$CONF_DIR" "$STATE_DIR"
+    chown -h -R "$EXEC_USER":"$EXEC_USER" "$CONF_DIR" "$STATE_DIR"
   fi
   exit 0
 fi
