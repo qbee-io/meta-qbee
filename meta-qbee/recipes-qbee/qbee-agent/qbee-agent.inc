@@ -27,7 +27,7 @@ QBEE_SYSTEMD_AFTER_TARGET ?= "network.target"
 QBEE_SYSTEMD_WANTS_TARGET ?= "${QBEE_SYSTEMD_AFTER_TARGET}"
 # the user to run qbee-agent as. If left empty, qbee-agent will run as root
 QBEE_EXEC_USER ?= ""
-# The elevation command to use for privileged operations if QBEE_EXEC_USER is set. Needs to be in json array format, e.g. '["sudo", "-E"]'
+# The elevation command to use for privileged operations if QBEE_EXEC_USER is set. Needs to be in json array format, e.g. '["/usr/bin/sudo", "-n"]'
 QBEE_ELEVATION_COMMAND ?= ""
 # Supplementary groups to add the execution user to for additional permissions. Needs to be in a space separated format, eg "docker tss"
 QBEE_SUPPLEMENTARY_GROUPS ?= ""
@@ -48,9 +48,25 @@ B = "${WORKDIR}/build"
 
 inherit update-rc.d systemd go-mod useradd
 
-# We need to add sudo to allow privileged operations if QBEE_EXEC_USER is set to a non-root user
-RDEPENDS:${PN} += "${@ 'sudo' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
+python __anonymous() {
+    # Check your custom variable
+    elevation = d.getVar('QBEE_ELEVATION_COMMAND') or ""
+    exec_user = d.getVar('QBEE_EXEC_USER') or ""
+
+    if exec_user and not elevation:
+      bb.warn("QBEE_EXEC_USER is set to '%s' but QBEE_ELEVATION_COMMAND is not set. You must set QBEE_ELEVATION_COMMAND to a valid elevation command (e.g. 'sudo') if you want to run qbee-agent as a non-root user." % exec_user)
+
+    if elevation and not exec_user:
+      bb.warn("QBEE_ELEVATION_COMMAND is set to '%s' but QBEE_EXEC_USER is not set. You should set QBEE_EXEC_USER to a non-root user if you want to run qbee-agent as a non-root user." % elevation)
+
+    # add sudo to RRECOMMENDS if the elevation command includes 'sudo' to allow users to use sudo for privileged operations without explicitly installing sudo in that case
+    if 'sudo' in elevation:
+      d.appendVar('RRECOMMENDS:%s' % d.getVar('PN'), ' sudo')
+}
+
 # add useradd package and params if QBEE_EXEC_USER is set to create a non-root user for qbee-agent execution
+# this needs to be defined here for the useradd class to pick it up, we cannot use a conditional inside the
+# variable definition itself as that would not work with how useradd parses the variables
 USERADD_PACKAGES += "${@ '${PN}' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
 USERADD_PARAM:${PN} = "${@ '-m -s /sbin/nologin ' + d.getVar('QBEE_EXEC_USER') if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
 
@@ -78,8 +94,7 @@ FILES:${PN} += "${systemd_unitdir}/system/qbee-agent.service ${sysconfdir}/qbee/
 FILES:${PN} += "${@ '${sysconfdir}/sudoers.d/qbee-agent' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
 FILES:${PN} += "${@ '${sysconfdir}/systemd/system/${PN}.service.d/*' if d.getVar('QBEE_EXEC_USER') is not '' else ''}"
 
-SRC_URI:append = "file://qbee-agent.sudoers.in \
-  file://qbee-agent.service.unprivileged.in \
+SRC_URI:append = "file://qbee-agent.service.unprivileged.in \
   file://qbee-agent.service.supplementary-groups.in \
   "
 
@@ -147,16 +162,6 @@ EOF
       ${WORKDIR}/qbee-agent.service.unprivileged.in
     install -m 0644 ${WORKDIR}/qbee-agent.service.unprivileged.in \
       ${D}${sysconfdir}/systemd/system/${PN}.service.d/10-unprivileged.conf
-  fi
-
-  # if both QBEE_EXEC_USER and QBEE_ELEVATION_COMMAND are set, we add a sudoers file to allow the
-  # execution user to run privileged operations via the elevation command
-  if [ -n "${QBEE_ELEVATION_COMMAND}" ] && [ -n "${QBEE_EXEC_USER}" ]; then
-    # install sudoers file for qbee-agent
-    install -m 0750 -d ${D}${sysconfdir}/sudoers.d
-    sed -i -e 's#[@]QBEE_EXEC_USER[@]#${QBEE_EXEC_USER}#g' \
-      ${WORKDIR}/qbee-agent.sudoers.in
-    install -m 0600 ${WORKDIR}/qbee-agent.sudoers.in ${D}${sysconfdir}/sudoers.d/qbee-agent
   fi
 
   # if both QBEE_SUPPLEMENTARY_GROUPS and QBEE_EXEC_USER are set, we add a systemd override to
