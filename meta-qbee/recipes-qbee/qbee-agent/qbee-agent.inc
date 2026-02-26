@@ -39,7 +39,6 @@ RDEPENDS:${PN} += " \
   kernel-module-ip-tables \
   kernel-module-iptable-filter \
   kernel-module-xt-tcpudp \
-  kernel-module-nf-conntrack \
   kernel-module-xt-conntrack \
   kernel-module-xt-state \
 "
