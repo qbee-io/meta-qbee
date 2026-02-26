@@ -56,6 +56,9 @@ local_conf_header:
     RAUC_SLOT_rootfs[fstype] = "ext4"
     RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
     QBEE_BOOTSTRAP_KEY="${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    QBEE_EXEC_USER = "qbee-agent"
+    QBEE_ELEVATION_COMMAND = '["/usr/bin/sudo","-n"]'
+    QBEE_SUPPLEMENTARY_GROUPS = "docker tss"
     # something is up with the SPDX creation, skip for now
     INHERIT:remove = "create-spdx"
     BB_DISKMON_DIRS = "\
