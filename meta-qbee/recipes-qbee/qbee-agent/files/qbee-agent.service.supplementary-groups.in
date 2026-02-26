@@ -1,0 +1,2 @@
+[Service]
+SupplementaryGroups=@QBEE_SUPPLEMENTARY_GROUPS@

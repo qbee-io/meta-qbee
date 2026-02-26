@@ -3,6 +3,8 @@
 SYSCONF_DIR="/etc/qbee"
 YOCTO_DIR="$SYSCONF_DIR/yocto"
 CONF_DIR="@QBEE_CONF_DIR@"
+STATE_DIR="@QBEE_STATE_DIR@"
+EXEC_USER="@QBEE_EXEC_USER@"
 
 resolve_mac() {
   sysnet="/sys/class/net"
@@ -46,13 +48,17 @@ resolve_machine_id() {
 }
 
 # Always make sure we have the updated CA cert
-mkdir -p "$CONF_DIR/ppkeys"
+mkdir -p "$CONF_DIR/ppkeys" "$STATE_DIR"
 chmod 700 "$CONF_DIR/ppkeys"
 cp -a "$YOCTO_DIR/ca.cert" "$CONF_DIR/ppkeys"
 chmod 600 "$CONF_DIR/ppkeys/ca.cert"
 
+# Assume we have bootstrapped if agent config exists
 if [ -f "$CONF_DIR/qbee-agent.json" ]; then
-  # Assume we have bootstrapped
+  # make sure permissions are correct
+  if [ -n "$EXEC_USER" ]; then
+    chown -h -R "$EXEC_USER":"$EXEC_USER" "$CONF_DIR" "$STATE_DIR"
+  fi
   exit 0
 fi
 
@@ -104,7 +110,16 @@ if [ "x$CA_CERT" != "x" ]; then
   fi
 fi
 
+if [ "x$ELEVATION_COMMAND" != "x" ]; then
+  printf ',"elevation_command":%s' "$ELEVATION_COMMAND" >> "$CONF_DIR/qbee-agent.json"
+fi
+
 printf "}" >> "$CONF_DIR/qbee-agent.json"
+
+# make sure permissions are correct
+if [ -n "$EXEC_USER" ]; then
+  chown -R "$EXEC_USER":"$EXEC_USER" "$CONF_DIR" "$STATE_DIR"
+fi
 
 if [ "$CLEAN_SEEDING_INFO" = "true" ]; then
   rm -f "$YOCTO_DIR/.bootstrap-env"
