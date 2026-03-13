@@ -24,7 +24,8 @@ python __anonymous () {
                 # Replace actual newlines with literal '\n' characters
                 changelog_content = f.read().strip().replace('\n', ' \\n ')
         else:
-            changelog_content = "No changelog provided."
+            # fail if the file doesn't exist, since it's critical for the build
+            raise FileNotFoundError(f"Changelog file not found at: {changelog_path}")
             
         # Inject the parsed text into the RAUC flag
         d.setVarFlag('RAUC_META_release_info', 'changelog', changelog_content)
