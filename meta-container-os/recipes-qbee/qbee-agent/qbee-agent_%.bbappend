@@ -1,0 +1,2 @@
+# override the default useradd parameters to create a system user with no login shell and a home directory in the state dir
+USERADD_PARAM:${PN} = "${@'-M -s /sbin/nologin -d %s %s' % (d.getVar('QBEE_STATE_DIR'), d.getVar('QBEE_EXEC_USER')) if d.getVar('QBEE_EXEC_USER') else ''}"

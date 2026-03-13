@@ -1,0 +1,9 @@
+Version 5.0.15 (2026-03-13)
+
+Added:
+- sudo for unprivileged access to rauc/iptables
+
+Changed:
+- Updated Yocto base to Scarthgap 5.0.15.
+- Updated qbee-agent version to 2026.11
+- Changed the qbee-agent to run as non-privileged user
