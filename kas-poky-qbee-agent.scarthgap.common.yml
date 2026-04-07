@@ -8,6 +8,7 @@ target:
 
 repos:
   meta-qbee:
+    path: .
     layers:
       meta-qbee:
 
