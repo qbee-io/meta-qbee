@@ -8,6 +8,7 @@ target:
 
 repos:
   meta-qbee:
+    path: .
     branch: ${HEAD_BRANCH}
     layers:
       meta-qbee:
