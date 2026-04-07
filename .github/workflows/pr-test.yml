@@ -42,8 +42,8 @@ jobs:
           TARGET_BRANCH: ${{ github.base_ref }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
-          sudo apt-get update && sudo apt-get install -y gettext-base
-          envsubst < kas-qbee-agent.yml.template > kas-qbee-agent.yml
+          python3 -c 'import os,sys; print(os.path.expandvars(sys.stdin.read()))' \
+            < kas-qbee-agent.yml.template > kas-qbee-agent.yml
           kas checkout kas-qbee-agent.yml
 
       - name: Build with KAS
