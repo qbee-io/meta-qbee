@@ -14,12 +14,12 @@ repos:
       meta-qbee:
 
   bitbake:
-    url: https://git.yoctoproject.org/git/poky
+    url: https://github.com/openembedded/bitbake.git
     path: layers/bitbake
     branch: ${TARGET_BRANCH}
 
   openembedded-core:
-    url: https://git.openembedded.org/openembedded-core
+    url: https://github.com/openembedded/openembedded-core.git
     path: layers/openembedded-core
     branch: ${TARGET_BRANCH}
     layers:
