@@ -44,6 +44,8 @@ jobs:
         run: |
           python3 -c 'import os,sys; print(os.path.expandvars(sys.stdin.read()))' \
             < kas-qbee-agent.yml.template > kas-qbee-agent.yml
+
+          cat kas-qbee-agent.yml # Debug output to verify the generated KAS configuration
           kas checkout kas-qbee-agent.yml
 
       - name: Build with KAS
