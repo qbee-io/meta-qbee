@@ -74,6 +74,11 @@ python __anonymous() {
           bb.fatal("QBEE_ELEVATION_COMMAND is set to '%s' but is not a valid JSON array with an absolute path as the first element. Please set QBEE_ELEVATION_COMMAND to a valid JSON array (e.g. '[\"/usr/bin/sudo\", \"-n\"]')" % elevation_command)
       except json.JSONDecodeError:
         bb.fatal("QBEE_ELEVATION_COMMAND is set to '%s' but is not a valid JSON array. Please set QBEE_ELEVATION_COMMAND to a valid JSON array (e.g. '[\"/usr/bin/sudo\", \"-n\"]')" % elevation_command)
+
+    # Warn if auto-install is enabled, this is deprecated behavior that will be removed in a future release
+    if d.getVar('QBEE_AUTO_INSTALL') == "1" and not d.getVar('QBEE_WARNING_SHOWN'):
+        bb.warn("meta-qbee: Auto-appending qbee-agent to all images is deprecated. Please set QBEE_AUTO_INSTALL = '0' and add qbee-agent to IMAGE_INSTALL manually. This behavior will be removed in a future release.")
+        d.setVar('QBEE_WARNING_SHOWN', '1')
 }
 
 # add useradd package and params if QBEE_EXEC_USER is set to create a non-root user for qbee-agent execution
