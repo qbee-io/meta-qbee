@@ -38,7 +38,7 @@ repos:
 local_conf_header:
   standard: |
     CONF_VERSION = "2"
-    QBEE_BOOTSTRAP_KEY="${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    QBEE_BOOTSTRAP_KEY = "${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
     BB_DISKMON_DIRS = "\
         STOPTASKS,${TMPDIR},1G,100K \
         STOPTASKS,${DL_DIR},1G,100K \

@@ -118,26 +118,26 @@ do_install:append () {
   install -m 0700 -d ${D}${sysconfdir}/qbee/yocto
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert ${D}${sysconfdir}/qbee/yocto
 
-  sed -i -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#g' ${WORKDIR}/qbee-bootstrap-prep.sh.in
-  sed -i -e 's#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#g' ${WORKDIR}/qbee-bootstrap-prep.sh.in
-  sed -i -e 's#[@]QBEE_EXEC_USER[@]#${QBEE_EXEC_USER}#g' ${WORKDIR}/qbee-bootstrap-prep.sh.in
+  sed -i -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#g' ${UNPACKDIR}/qbee-bootstrap-prep.sh.in
+  sed -i -e 's#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#g' ${UNPACKDIR}/qbee-bootstrap-prep.sh.in
+  sed -i -e 's#[@]QBEE_EXEC_USER[@]#${QBEE_EXEC_USER}#g' ${UNPACKDIR}/qbee-bootstrap-prep.sh.in
 
-  install -m 0700 ${WORKDIR}/qbee-bootstrap-prep.sh.in ${D}/${sysconfdir}/qbee/yocto/qbee-bootstrap-prep.sh
+  install -m 0700 ${UNPACKDIR}/qbee-bootstrap-prep.sh.in ${D}/${sysconfdir}/qbee/yocto/qbee-bootstrap-prep.sh
 
   if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
     install -d ${D}/${systemd_unitdir}/system
     sed -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#g;s#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#g' \
-      ${WORKDIR}/qbee-agent.service.in > ${WORKDIR}/qbee-agent.service
-    sed -i -e 's#[@]QBEE_SYSTEMD_AFTER_TARGET[@]#${QBEE_SYSTEMD_AFTER_TARGET}#g' ${WORKDIR}/qbee-agent.service
-    sed -i -e 's#[@]QBEE_SYSTEMD_WANTS_TARGET[@]#${QBEE_SYSTEMD_WANTS_TARGET}#g' ${WORKDIR}/qbee-agent.service
-    install -m 0644 ${WORKDIR}/qbee-agent.service ${D}/${systemd_unitdir}/system/qbee-agent.service
+      ${UNPACKDIR}/qbee-agent.service.in > ${UNPACKDIR}/qbee-agent.service
+    sed -i -e 's#[@]QBEE_SYSTEMD_AFTER_TARGET[@]#${QBEE_SYSTEMD_AFTER_TARGET}#g' ${UNPACKDIR}/qbee-agent.service
+    sed -i -e 's#[@]QBEE_SYSTEMD_WANTS_TARGET[@]#${QBEE_SYSTEMD_WANTS_TARGET}#g' ${UNPACKDIR}/qbee-agent.service
+    install -m 0644 ${UNPACKDIR}/qbee-agent.service ${D}/${systemd_unitdir}/system/qbee-agent.service
   fi
 
   if ${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', 'true', 'false', d)}; then
     install -d ${D}${INIT_D_DIR}
     sed -e 's#[@]QBEE_CONF_DIR[@]#${QBEE_CONF_DIR}#g;s#[@]QBEE_STATE_DIR[@]#${QBEE_STATE_DIR}#g' \
-      ${WORKDIR}/qbee-agent.init.in > ${WORKDIR}/qbee-agent.init
-    install -m 0755 ${WORKDIR}/qbee-agent.init ${D}/${INIT_D_DIR}/qbee-agent
+      ${UNPACKDIR}/qbee-agent.init.in > ${UNPACKDIR}/qbee-agent.init
+    install -m 0755 ${UNPACKDIR}/qbee-agent.init ${D}/${INIT_D_DIR}/qbee-agent
   fi
 
   if [ -n "${QBEE_BOOTSTRAP_KEY}" ]; then
@@ -167,8 +167,8 @@ EOF
     # install systemd override for unprivileged execution
     install -m 0750 -d ${D}${sysconfdir}/systemd/system/${PN}.service.d
     sed -i -e 's#[@]QBEE_EXEC_USER[@]#${QBEE_EXEC_USER}#g' \
-      ${WORKDIR}/qbee-agent.service.unprivileged.in
-    install -m 0644 ${WORKDIR}/qbee-agent.service.unprivileged.in \
+      ${UNPACKDIR}/qbee-agent.service.unprivileged.in
+    install -m 0644 ${UNPACKDIR}/qbee-agent.service.unprivileged.in \
       ${D}${sysconfdir}/systemd/system/${PN}.service.d/10-unprivileged.conf
   fi
 
@@ -178,8 +178,8 @@ EOF
     # install systemd override for supplementary groups
     install -m 0750 -d ${D}${sysconfdir}/systemd/system/${PN}.service.d
     sed -i -e 's#[@]QBEE_SUPPLEMENTARY_GROUPS[@]#${QBEE_SUPPLEMENTARY_GROUPS}#g' \
-      ${WORKDIR}/qbee-agent.service.supplementary-groups.in
-    install -m 0644 ${WORKDIR}/qbee-agent.service.supplementary-groups.in \
+      ${UNPACKDIR}/qbee-agent.service.supplementary-groups.in
+    install -m 0644 ${UNPACKDIR}/qbee-agent.service.supplementary-groups.in \
       ${D}${sysconfdir}/systemd/system/${PN}.service.d/20-supplementary-groups.conf
   fi
 }
