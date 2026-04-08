@@ -34,6 +34,9 @@ QBEE_SUPPLEMENTARY_GROUPS ?= ""
 
 RDEPENDS:${PN} += " \
   ca-certificates \
+  "
+
+RRECOMMENDS:${PN} += " \
   iptables \
   kernel-module-x-tables \
   kernel-module-ip-tables \
