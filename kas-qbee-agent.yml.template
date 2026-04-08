@@ -17,6 +17,8 @@ repos:
     url: https://git.openembedded.org/bitbake
     path: layers/bitbake
     branch: ${TARGET_BRANCH}
+    layers:
+      .: disabled
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
