@@ -14,12 +14,12 @@ repos:
       meta-qbee:
 
   bitbake:
-    url: https://github.com/openembedded/bitbake.git
+    url: https://git.openembedded.org/bitbake
     path: layers/bitbake
     branch: ${TARGET_BRANCH}
 
   openembedded-core:
-    url: https://github.com/openembedded/openembedded-core.git
+    url: https://git.openembedded.org/openembedded-core
     path: layers/openembedded-core
     branch: ${TARGET_BRANCH}
     layers:
