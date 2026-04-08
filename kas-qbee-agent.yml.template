@@ -26,11 +26,11 @@ repos:
       meta:
 
   meta-yocto:
-    url: https://git.yoctoproject.org/git/meta-yocto
+    url: https://git.yoctoproject.org/meta-yocto
     path: layers/meta-yocto
     branch: ${TARGET_BRANCH}
     layers:
-      meta-yocto:
+      meta-poky:
       meta-yocto-bsp:
 
 local_conf_header:
