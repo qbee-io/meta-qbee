@@ -39,6 +39,9 @@ local_conf_header:
   standard: |
     CONF_VERSION = "2"
     QBEE_BOOTSTRAP_KEY = "${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    # Downgrade buildpaths from an ERROR to a WARNING
+    ERROR_QA:remove = "buildpaths"
+    WARN_QA:append = " buildpaths"
     BB_DISKMON_DIRS = "\
         STOPTASKS,${TMPDIR},1G,100K \
         STOPTASKS,${DL_DIR},1G,100K \
