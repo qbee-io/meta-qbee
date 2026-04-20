@@ -9,6 +9,15 @@ on:
       - scarthgap
 #      - wrynose
 
+env:
+  # Environment variable for BitBake branch, defaulting to 'master' if not set
+  BITBAKE_MAP: >-
+    {
+      "kirkstone": "2.0",
+      "scarthgap": "2.8",
+      "wrynose": "2.18",
+      "master": "master"
+    }
 jobs:
   build:
     strategy:
@@ -40,6 +49,7 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
           TARGET_BRANCH: ${{ github.base_ref }}
+          BITBAKE_BRANCH: ${{ fromJSON(env.BITBAKE_MAP)[github.base_ref] || 'master' }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
           # Generate the KAS configuration file from the template, substituting environment variables
