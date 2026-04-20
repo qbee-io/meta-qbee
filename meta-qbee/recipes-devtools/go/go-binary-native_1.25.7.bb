@@ -21,7 +21,7 @@ CVE_PRODUCT = "golang:go"
 # not-applicable-platform: Issue only applies on Windows
 CVE_CHECK_IGNORE += "CVE-2024-3566"
 
-S = "${WORKDIR}/go"
+S = "${UNPACKDIR}/go"
 
 inherit goarch native
 
