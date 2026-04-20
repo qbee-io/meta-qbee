@@ -3,24 +3,11 @@ Yocto Project meta layer for the qbee-agent client https://qbee.io
 
 This repository holds the layers for integrating the qbee-agent into a Yocto build
 
-The repository holds to branches based on the minimum supported yocto version
-* kirkstone - compatible with kirkstone and above
-* dunfell - compatible with dunfell and above
-
-Essentially, the difference is that the kirkstone branch will build the qbee-agent from source, while
-the dunfell branch installs pre-compiled static binaries (arm 32/64 and intel 32/64 supported for now)
-
 # Adding the meta-qbee layer
 
-Kirkstone and later
+Adding the qbee-agent layer in a Yocto build
 ```
-git clone -b kirkstone https://github.com/qbee-io/meta-qbee layers/meta-qbee
-bitbake-layers add-layer layers/meta-qbee/meta-qbee
-```
-
-Dunfell and later
-```
-git clone -b dunfell https://github.com/qbee-io/meta-qbee layers/meta-qbee
+git clone -b wrynose https://github.com/qbee-io/meta-qbee layers/meta-qbee
 bitbake-layers add-layer layers/meta-qbee/meta-qbee
 ```
 
@@ -91,12 +78,3 @@ The `QBEE_SUPPLEMENTARY_GROUPS` will add supplementary groups to the systemd for
 if you want to use the `tpm` and `docker` features of the qbee-agent).
 
 More information on the running qbee-agent as an unprivileged user can be found here: https://docs.qbee.io/agent-rootless.html 
-
-# Note on qbee-agent versions < 2024.09
-
-Versions of qbee-agent  < 2024.09 will also need the following:
-
-```
-EXTRA_IMAGE_FEATURES += "ssh-server-openssh"
-```
-For more information, please refer to our docs: https://docs.qbee.io/yocto-qbee-agent.html
