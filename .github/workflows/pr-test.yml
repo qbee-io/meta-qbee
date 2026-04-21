@@ -7,7 +7,7 @@ on:
       - master
       - kirkstone
       - scarthgap
-#      - wrynose
+      - wrynose
 
 env:
   # Environment variable for BitBake branch, defaulting to 'master' if not set
