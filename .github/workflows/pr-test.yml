@@ -53,3 +53,9 @@ jobs:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
           kas build kas-qbee-agent.yml
+
+      - name: Run OEQA tests with KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
+        run: |
+          kas build kas-qbee-agent-test.yml
