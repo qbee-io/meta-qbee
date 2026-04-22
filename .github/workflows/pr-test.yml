@@ -3,20 +3,30 @@ permissions:
 name: meta-qbee-pr-tests
 on:
   pull_request:
-  push:
     branches:
       - master
+      - kirkstone
+      - scarthgap
+      - wrynose
 
+env:
+  # Environment variable for BitBake branch, defaulting to 'master' if not set
+  BITBAKE_MAP: >-
+    {
+      "kirkstone": "2.0",
+      "scarthgap": "2.8",
+      "wrynose": "2.18",
+      "master": "master"
+    }
 jobs:
   build:
     strategy:
       matrix:
-        arch: [x86_64,arm64]
-        branch: [kirkstone,scarthgap]
+        machine: [qemux86-64,qemuarm64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
-      image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
+      image: ghcr.io/siemens/kas/kas:5.0-debian-bookworm # Use the latest kas container image
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
@@ -34,9 +44,22 @@ jobs:
         with:
           clean: true
           fetch-depth: 0
+
       - name: Set up KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
+          TARGET_BRANCH: ${{ github.base_ref }}
+          BITBAKE_BRANCH: ${{ fromJSON(env.BITBAKE_MAP)[github.base_ref] || 'master' }}
+          HEAD_BRANCH: ${{ github.head_ref }}
         run: |
-           kas checkout kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+          # Generate the KAS configuration file from the template, substituting environment variables
+          python3 -c 'import os,sys; print(os.path.expandvars(sys.stdin.read()))' \
+            < kas-qbee-agent.yml.template > kas-qbee-agent.yml
+
+          kas checkout kas-qbee-agent.yml
+
       - name: Build with KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
         run: |
-          kas build kas-poky-qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+          kas build kas-qbee-agent.yml
