@@ -6,9 +6,7 @@ header:
 target:
   - core-image-minimal
 
-env:
-  # Tell kas to execute the OEQA test framework instead of a standard build
-  KAS_TASK: "testimage"
+task: testimage
 
 local_conf_header:
   testing: |
