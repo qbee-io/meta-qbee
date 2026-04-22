@@ -1,13 +1,13 @@
 header:
   version: 8
   includes:
-    - kas-qbee-agent.yml.template
+    - kas-qbee-agent.yml
 
 target:
   - core-image-minimal
 
 env:
-  # Tell Kas to execute the OEQA test framework instead of a standard build
+  # Tell kas to execute the OEQA test framework instead of a standard build
   KAS_TASK: "testimage"
 
 local_conf_header:
