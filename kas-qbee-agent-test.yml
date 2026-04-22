@@ -13,6 +13,6 @@ env:
 local_conf_header:
   testing: |
     IMAGE_INSTALL:append = " qbee-agent"    
-    INHERIT += "testimage"
+    IMAGE_CLASSES += "testimage"
     TEST_SUITES:append = " qbee"
     EXTRA_IMAGE_FEATURES += "ssh-server-dropbear allow-empty-password empty-root-password allow-root-login"
