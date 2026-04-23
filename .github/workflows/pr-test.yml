@@ -30,6 +30,8 @@ jobs:
         QBEE_BOOTSTRAP_KEY: my-bootstrap-key
       volumes:
         - /home/runner/ci/yocto:/ci/yocto
+        - /etc/passwd:/etc/passwd:ro
+        - /etc/group:/etc/group:ro
     steps:
       - uses: actions/checkout@v4
         with:
