@@ -60,4 +60,6 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
+          # clean the state of core-image-minimal to ensure that the tests are run
+          kas shell kas-qbee-agent-test.yml -c "bitbake -c cleanall core-image-minimal"
           kas build kas-qbee-agent-test.yml
