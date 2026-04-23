@@ -20,3 +20,4 @@ local_conf_header:
     # modern LTS qemu toggles
     TEST_RUNQEMUPARAMS += " slirp"
     TEST_SERIALCONTROL_STATUS = "0"
+    TESTIMAGE_AUTO = "1"
