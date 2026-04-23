@@ -13,7 +13,8 @@ jobs:
   build:
     strategy:
       matrix:
-        machine: [qemux86-64,qemuarm64]
+#        machine: [qemux86-64,qemuarm64]
+        machine: [qemux86-64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
