@@ -32,6 +32,6 @@ class QbeeAgentTest(OERuntimeTestCase):
     """ Copy the qbee-agent bootstrap and run shellcheck the script to verify it executes without error."""
     tmpPath = tempfile.NamedTemporaryFile(delete=False)
 
-    self.target.copy_from('/etc/qbee/yocto/qbee-bootstrap-prep.sh', tmpPath.name)
+    self.target.copyFrom('/etc/qbee/yocto/qbee-bootstrap-prep.sh', tmpPath.name)
     status, output = self.target.run(f'shellcheck {tmpPath.name}')
     self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh has shellcheck errors: {output}")
