@@ -66,4 +66,6 @@ class QbeeAgentTest(OERuntimeTestCase):
       """ Verify that the json file is parseable and contains the expected key based on the env variable set. """
       data = json.loads(open(qbeeAgentJsonFile.name, 'r').read())
       self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
+
+      self.target.run(f'rm -f {bootstrapEnvTargetPath} && rm -f {qbeeAgentConfigFile}')
       
