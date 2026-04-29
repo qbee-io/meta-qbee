@@ -59,7 +59,7 @@ class QbeeAgentTest(OERuntimeTestCase):
       self.assertEqual(status, 0, msg=f"Failed to read back bootstrap env file: {output}")
       """
 
-      status, output = self.target.run(f'sh -x /etc/qbee/yocto/qbee-bootstrap-prep.sh"')
+      status, output = self.target.run(f'cat {bootstrapEnvTargetPath} && sh -x /etc/qbee/yocto/qbee-bootstrap-prep.sh 2>&1')
       self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh failed to execute with env {line}: {output}")
 
       status, output = self.target.copyFrom(qbeeAgentConfigFile, qbeeAgentJsonFile.name)
