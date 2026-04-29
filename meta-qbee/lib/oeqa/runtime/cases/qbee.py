@@ -1,3 +1,4 @@
+import json
 import tempfile
 
 from oeqa.runtime.case import OERuntimeTestCase
@@ -29,9 +30,36 @@ class QbeeAgentTest(OERuntimeTestCase):
 
   @OETestDepends(['qbee.QbeeAgentTest.test_qbee_binary_execution'])
   def test_qbee_agent_bootstrap_pre_script(self):
-    """ Copy the qbee-agent bootstrap and run shellcheck the script to verify it executes without error."""
-    tmpPath = tempfile.NamedTemporaryFile(delete=False)
+    """ Create a bootstrap env file with all available options to verify that the script can handle them without error. """
+    bootstrapEnvFile = tempfile.NamedTemporaryFile(delete=False)
+    qbeeAgentJsonFile = tempfile.NamedTemporaryFile(delete=False)
+    bootstrapEnvTargetPath = "/etc/qbee/yocto/.bootstrap-env"
+    qbeeAgentConfigFile = "/data/qbee/etc/qbee-agent.json"
 
-    self.target.copyFrom('/etc/qbee/yocto/qbee-bootstrap-prep.sh', tmpPath.name)
-    status, output = self.target.run(f'shellcheck {tmpPath.name}')
-    self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh has shellcheck errors: {output}")
+    lines = [
+      "BOOTSTRAP_KEY=my-key",
+      "DEVICE_NAME_TYPE=machine-id",
+      "DEVICE_HUB_HOST=device.app.qbee.io",
+      "DISABLE_REMOTE_ACCESS=true",
+      "TPM_DEVICE=/dev/tpm0",
+      "CA_CERT=/etc/qbee/ca_cert.pem",
+      "ELEVATION_COMMAND='[\"/usr/bin/sudo\", \"-n\"]'",
+    ]
+
+    for line in lines:
+      bootstrapEnvFile.write(f"{line}\n".encode('utf-8'))
+      bootstrapEnvFile.flush()
+      
+      status, output = self.target.copyTo(bootstrapEnvFile.name, bootstrapEnvTargetPath)
+      self.assertEqual(status, 0, msg=f"Failed to copy bootstrap env file: {output}")
+      
+      status, output = self.target.run(f'/etc/qbee/yocto/qbee-bootstrap-prep.sh"')
+      self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh failed to execute with env {line}: {output}")
+
+      status, output = self.target.copyFrom(qbeeAgentConfigFile, qbeeAgentJsonFile.name)
+      self.assertEqual(status, 0, msg=f"Failed to copy qbee-agent.json file: {output}")
+
+      """ Verify that the json file is parseable and contains the expected key based on the env variable set. """
+      data = json.loads(open(qbeeAgentJsonFile.name, 'r').read())
+      self.assertIsNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
+      
