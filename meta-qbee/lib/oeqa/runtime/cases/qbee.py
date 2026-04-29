@@ -49,10 +49,14 @@ class QbeeAgentTest(OERuntimeTestCase):
     for line in lines:
       bootstrapEnvFile.write(f"{line}\n".encode('utf-8'))
       bootstrapEnvFile.flush()
-      
+
+
       status, output = self.target.copyTo(bootstrapEnvFile.name, bootstrapEnvTargetPath)
       self.assertEqual(status, 0, msg=f"Failed to copy bootstrap env file: {output}")
-      
+
+      status, output = self.target.run(f'cat {bootstrapEnvTargetPath}')
+      self.assertEqual(status, 0, msg=f"Failed to read back bootstrap env file: {output}")
+
       status, output = self.target.run(f'/etc/qbee/yocto/qbee-bootstrap-prep.sh"')
       self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh failed to execute with env {line}: {output}")
 
