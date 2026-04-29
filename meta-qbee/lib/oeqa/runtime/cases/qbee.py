@@ -54,12 +54,10 @@ class QbeeAgentTest(OERuntimeTestCase):
       status, output = self.target.copyTo(bootstrapEnvFile.name, bootstrapEnvTargetPath)
       self.assertEqual(status, 0, msg=f"Failed to copy bootstrap env file: {output}")
       
-      """
-      status, output = self.target.run(f'cat {bootstrapEnvTargetPath}')
-      self.assertEqual(status, 0, msg=f"Failed to read back bootstrap env file: {output}")
-      """
+      status, output = self.target.run(f'sync')
+      self.assertEqual(status, 0, msg=f"Failed to sync files: {output}")
 
-      status, output = self.target.run(f'cat {bootstrapEnvTargetPath} && sh -x /etc/qbee/yocto/qbee-bootstrap-prep.sh 2>&1')
+      status, output = self.target.run(f'/etc/qbee/yocto/qbee-bootstrap-prep.sh 2>&1')
       self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh failed to execute with env {line}: {output}")
 
       status, output = self.target.copyFrom(qbeeAgentConfigFile, qbeeAgentJsonFile.name)
@@ -67,5 +65,5 @@ class QbeeAgentTest(OERuntimeTestCase):
 
       """ Verify that the json file is parseable and contains the expected key based on the env variable set. """
       data = json.loads(open(qbeeAgentJsonFile.name, 'r').read())
-      self.assertIsNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
+      self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
       
