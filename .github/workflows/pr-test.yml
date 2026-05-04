@@ -30,7 +30,7 @@ jobs:
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
-        DL_DIR: /ci/yocto/ ${{ github.base_ref }}/downloads
+        DL_DIR: /ci/yocto/downloads
         SSTATE_DIR: /ci/yocto/${{ github.base_ref }}/sstate
         TMPDIR: /ci/yocto/${{ github.base_ref }}/tmp
         # Environment variable for bootstrap key
