@@ -69,7 +69,7 @@ class QbeeAgentTest(OERuntimeTestCase):
       self.target.run(f'rm -f {bootstrapEnvTargetPath} && rm -f {qbeeAgentConfigFile}')
 
   @OETestDepends(['qbee.QbeeAgentTest.test_qbee_agent_bootstrap_pre_script'])
-  def test_qbee_agent_syystemd_integration(self):
+  def test_qbee_agent_systemd_integration(self):
     """ create a replacement script that runs in a loop and verify that systemd restarts it as expected. """
     testScript = tempfile.NamedTemporaryFile(delete=False)
     testScript.write(b"#!/bin/sh\nwhile true; do echo 'test'; sleep 1; done")
