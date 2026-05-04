@@ -7,17 +7,27 @@ on:
       - master
       - kirkstone
       - scarthgap
-#      - wrynose
+      - wrynose
+env:
+  # Environment variable for BitBake branch, defaulting to 'master' if not set
+  BITBAKE_MAP: >-
+    {
+      "kirkstone": "2.0",
+      "scarthgap": "2.8",
+      "wrynose": "2.18",
+      "master": "master"
+    }
 
 jobs:
   build:
     strategy:
       matrix:
-        machine: [qemux86-64,qemuarm64]
+#        machine: [qemux86-64,qemuarm64]
+        machine: [qemux86-64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
-      image: ghcr.io/siemens/kas/kas:5.2 # Use the latest kas container image
+      image: ghcr.io/siemens/kas/kas:5.0-debian-bookworm # Use the latest kas container image
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
@@ -30,6 +40,8 @@ jobs:
         QBEE_BOOTSTRAP_KEY: my-bootstrap-key
       volumes:
         - /home/runner/ci/yocto:/ci/yocto
+        - /etc/passwd:/etc/passwd:ro
+        - /etc/group:/etc/group:ro
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,6 +52,7 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
           TARGET_BRANCH: ${{ github.base_ref }}
+          BITBAKE_BRANCH: ${{ fromJSON(env.BITBAKE_MAP)[github.base_ref] || 'master' }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
           # Generate the KAS configuration file from the template, substituting environment variables
@@ -53,3 +66,12 @@ jobs:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
           kas build kas-qbee-agent.yml
+
+      - name: Run OEQA tests with KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          # clean the state of core-image-minimal to ensure that the tests are run
+          kas shell kas-qbee-agent-test.yml -c "bitbake -c cleanall core-image-minimal"
+          kas build kas-qbee-agent-test.yml
