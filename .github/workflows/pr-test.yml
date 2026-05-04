@@ -30,9 +30,9 @@ jobs:
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
-        DL_DIR: /ci/yocto/downloads
-        SSTATE_DIR: /ci/yocto/sstate
-        TMPDIR: /ci/yocto/tmp
+        DL_DIR: /ci/yocto/ ${{ github.base_ref }}/downloads
+        SSTATE_DIR: /ci/yocto/${{ github.base_ref }}/sstate
+        TMPDIR: /ci/yocto/${{ github.base_ref }}/tmp
         # Environment variable for bootstrap key
         # This should be set in the GitHub repository secrets for security
         # when running integration tests with the platform
@@ -62,6 +62,4 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
-          # clean all sstate and downloads to ensure a clean build environment
-          kas cleansstate kas-qbee-agent.yml
           kas build kas-qbee-agent.yml
