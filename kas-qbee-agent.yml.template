@@ -38,6 +38,8 @@ repos:
 local_conf_header:
   standard: |
     CONF_VERSION = "2"
+    BB_HASHSERVE_DB_DIR = "${SSTATE_DIR}"
+    INIT_MANAGER = "systemd"
     QBEE_BOOTSTRAP_KEY = "${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
     # Downgrade buildpaths from an ERROR to a WARNING
     ERROR_QA:remove = "buildpaths"
