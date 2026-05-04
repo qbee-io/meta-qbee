@@ -62,4 +62,6 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
+          # clean all sstate and downloads to ensure a clean build environment
+          kas cleansstate kas-qbee-agent.yml
           kas build kas-qbee-agent.yml
