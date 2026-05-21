@@ -4,6 +4,7 @@ import tempfile
 from oeqa.runtime.case import OERuntimeTestCase
 from oeqa.core.decorator.depends import OETestDepends
 from oeqa.runtime.decorator.package import OEHasPackage
+from oeqa.utils.commands import runCmd
 
 class QbeeAgentTest(OERuntimeTestCase):
   @OEHasPackage(['qbee-agent'])
@@ -93,3 +94,13 @@ class QbeeAgentTest(OERuntimeTestCase):
     self.target.run('systemctl stop qbee-agent.service')
     status, output = self.target.run('systemctl is-active qbee-agent.service')
     self.assertNotEqual(status, 0, msg=f"qbee-agent service failed to stop: {output}")
+
+  @OETestDepends(['qbee.QbeeAgentTest.test_qbee_agent_systemd_integration'])
+  def test_qbee_agent_bootstrap_pre_shellcheck(self):
+    """ copyFrom so that we can run shellcheck on the script to verify that it is free of common scripting errors. """
+    bootstrapPreScript = tempfile.NamedTemporaryFile(delete=False)
+    self.target.copyFrom("/etc/qbee/yocto/qbee-bootstrap-prep.sh", bootstrapPreScript.name)
+
+    """ Run shellcheck on the local copy of the script """
+    result = runCmd(f"shellcheck {bootstrapPreScript.name}")
+    self.assertEqual(result.status, 0, msg=f"shellcheck found issues in qbee-bootstrap-prep.sh: {result.output}")
