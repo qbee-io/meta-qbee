@@ -72,26 +72,38 @@ class QbeeAgentTest(OERuntimeTestCase):
 
   @OETestDepends(['qbee.QbeeAgentTest.test_qbee_agent_bootstrap_pre_script'])
   def test_qbee_agent_systemd_integration(self):
-    """ create a replacement script that runs in a loop and verify that systemd restarts it as expected. """
-    testScript = tempfile.NamedTemporaryFile(delete=False)
-    testScript.write(b"#!/bin/sh\nwhile true; do echo 'test'; sleep 1; done")
-    testScript.flush()
-    self.target.copyTo(testScript.name, "/usr/bin/qbee-agent")
-    self.target.run("chmod +x /usr/bin/qbee-agent")
+    """Temporarily replace qbee-agent and verify the systemd unit can start/stop it."""
+    backup_path = "/usr/bin/qbee-agent.oeqa.bak"
+    status, output = self.target.run(f"cp /usr/bin/qbee-agent {backup_path}")
+    self.assertEqual(status, 0, msg=f"Failed to backup qbee-agent binary: {output}")
 
-    """ Create an env file make sure that qbee-agent.json gets generated """
-    bootstrapEnvFile = tempfile.NamedTemporaryFile(delete=False)
-    bootstrapEnvFile.write(b"BOOTSTRAP_KEY=my-key")
-    bootstrapEnvFile.flush()
-    self.target.copyTo(bootstrapEnvFile.name, "/etc/qbee/yocto/.bootstrap-env")
-    self.target.run('sync')
+    try:
+      testScript = tempfile.NamedTemporaryFile(delete=False)
+      testScript.write(b"#!/bin/sh\nwhile true; do echo 'test'; sleep 1; done\n")
+      testScript.flush()
 
-    """ Start the service and verify that it is running """
-    self.target.run('systemctl start qbee-agent.service')
-    status, output = self.target.run('systemctl is-active qbee-agent.service')
-    self.assertEqual(status, 0, msg=f"qbee-agent service failed to start: {output}")
+      status, output = self.target.copyTo(testScript.name, "/usr/bin/qbee-agent")
+      self.assertEqual(status, 0, msg=f"Failed to install test qbee-agent binary: {output}")
+      status, output = self.target.run("chmod +x /usr/bin/qbee-agent")
+      self.assertEqual(status, 0, msg=f"Failed to chmod test qbee-agent binary: {output}")
 
-    """ Stop the service and verify that it is stopped """
-    self.target.run('systemctl stop qbee-agent.service')
-    status, output = self.target.run('systemctl is-active qbee-agent.service')
-    self.assertNotEqual(status, 0, msg=f"qbee-agent service failed to stop: {output}")
+      # Create an env file so qbee-agent.json gets generated
+      bootstrapEnvFile = tempfile.NamedTemporaryFile(delete=False)
+      bootstrapEnvFile.write(b"BOOTSTRAP_KEY=my-key\n")
+      bootstrapEnvFile.flush()
+      status, output = self.target.copyTo(bootstrapEnvFile.name, "/etc/qbee/yocto/.bootstrap-env")
+      self.assertEqual(status, 0, msg=f"Failed to copy bootstrap env file: {output}")
+      self.target.run('sync')
+
+      # Start the service and verify that it is running
+      self.target.run('systemctl start qbee-agent.service')
+      status, output = self.target.run('systemctl is-active qbee-agent.service')
+      self.assertEqual(status, 0, msg=f"qbee-agent service failed to start: {output}")
+
+      # Stop the service and verify that it is stopped
+      self.target.run('systemctl stop qbee-agent.service')
+      status, output = self.target.run('systemctl is-active qbee-agent.service')
+      self.assertNotEqual(status, 0, msg=f"qbee-agent service failed to stop: {output}")
+    finally:
+      self.target.run(f"mv -f {backup_path} /usr/bin/qbee-agent")
+      self.target.run("chmod +x /usr/bin/qbee-agent")
