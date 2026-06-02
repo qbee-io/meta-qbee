@@ -4,7 +4,6 @@ import tempfile
 from oeqa.runtime.case import OERuntimeTestCase
 from oeqa.core.decorator.depends import OETestDepends
 from oeqa.runtime.decorator.package import OEHasPackage
-from oeqa.utils.commands import runCmd
 
 class QbeeAgentTest(OERuntimeTestCase):
   @OEHasPackage(['qbee-agent'])
