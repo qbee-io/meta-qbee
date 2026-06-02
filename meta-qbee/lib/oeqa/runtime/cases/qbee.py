@@ -63,8 +63,9 @@ class QbeeAgentTest(OERuntimeTestCase):
       status, output = self.target.copyFrom(qbeeAgentConfigFile, qbeeAgentJsonFile.name)
       self.assertEqual(status, 0, msg=f"Failed to copy qbee-agent.json file: {output}")
 
-      """ Verify that the json file is parseable and contains the expected key based on the env variable set. """
-      data = json.loads(open(qbeeAgentJsonFile.name, 'r').read())
+      # Verify that the JSON file is parseable.
+      with open(qbeeAgentJsonFile.name, 'r', encoding='utf-8') as f:
+        data = json.load(f)
       self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
 
       self.target.run(f'rm -f {bootstrapEnvTargetPath} && rm -f {qbeeAgentConfigFile}')
