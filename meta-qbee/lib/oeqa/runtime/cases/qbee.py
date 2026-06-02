@@ -33,6 +33,7 @@ class QbeeAgentTest(OERuntimeTestCase):
     """ Create a bootstrap env file with all available options to verify that the script can handle them without error. """
     bootstrapEnvFile = tempfile.NamedTemporaryFile(delete=False)
     qbeeAgentJsonFile = tempfile.NamedTemporaryFile(delete=False)
+    qbeeAgentJsonFile.close()
     bootstrapEnvTargetPath = "/etc/qbee/yocto/.bootstrap-env"
     qbeeAgentConfigFile = "/data/qbee/etc/qbee-agent.json"
 
