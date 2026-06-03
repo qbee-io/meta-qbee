@@ -69,7 +69,7 @@ class QbeeAgentTest(OERuntimeTestCase):
         self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
         if expected_key:
           self.assertIn(expected_key, data, msg=f"Expected key '{expected_key}' missing from qbee-agent.json for env {line}")
-          if expected_value is not None:
+          if expected_value:
             self.assertEqual(data[expected_key], expected_value, msg=f"Unexpected value for key '{expected_key}' in qbee-agent.json for env {line}")
 
       self.target.run(f'rm -f {bootstrapEnvTargetPath} && rm -f {qbeeAgentConfigFile}')
