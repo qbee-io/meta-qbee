@@ -37,36 +37,40 @@ class QbeeAgentTest(OERuntimeTestCase):
     bootstrapEnvTargetPath = "/etc/qbee/yocto/.bootstrap-env"
     qbeeAgentConfigFile = "/data/qbee/etc/qbee-agent.json"
 
-    lines = [
-      "BOOTSTRAP_KEY=my-key",
-      "DEVICE_NAME_TYPE=machine-id",
-      "DEVICE_HUB_HOST=device.app.qbee.io",
-      "DISABLE_REMOTE_ACCESS=true",
-      "TPM_DEVICE=/dev/tpm0",
-      "CA_CERT=/etc/qbee/ca_cert.pem",
-      "ELEVATION_COMMAND='[\"/usr/bin/sudo\", \"-n\"]'",
+    test_cases = [
+      ("BOOTSTRAP_KEY=my-key", "bootstrap_key", "my-key"),
+      ("DEVICE_NAME_TYPE=machine-id", "device_name", ""),
+      ("DEVICE_HUB_HOST=device.app.qbee.io", "server", "device.app.qbee.io"),
+      ("DISABLE_REMOTE_ACCESS=true", "disable_remote_access", True),
+      ("TPM_DEVICE=/dev/tpm0", "tpm_device", "/dev/tpm0"),
+      ("CA_CERT=/etc/qbee/ca_cert.pem", "ca_cert", "/etc/qbee/ca_cert.pem"),
+      ("ELEVATION_COMMAND='[\"/usr/bin/sudo\", \"-n\"]'", "elevation_command", ["/usr/bin/sudo", "-n"]),
     ]
 
-    for line in lines:
+    for line, expected_key, expected_value in test_cases:
       bootstrapEnvFile.write(f"{line}\n".encode('utf-8'))
       bootstrapEnvFile.flush()
 
       status, output = self.target.copyTo(bootstrapEnvFile.name, bootstrapEnvTargetPath)
       self.assertEqual(status, 0, msg=f"Failed to copy bootstrap env file: {output}")
       
-      status, output = self.target.run(f'sync')
+      status, output = self.target.run('sync')
       self.assertEqual(status, 0, msg=f"Failed to sync files: {output}")
 
-      status, output = self.target.run(f'/etc/qbee/yocto/qbee-bootstrap-prep.sh 2>&1')
+      status, output = self.target.run('/etc/qbee/yocto/qbee-bootstrap-prep.sh 2>&1')
       self.assertEqual(status, 0, msg=f"qbee-bootstrap-prep.sh failed to execute with env {line}: {output}")
 
       status, output = self.target.copyFrom(qbeeAgentConfigFile, qbeeAgentJsonFile.name)
       self.assertEqual(status, 0, msg=f"Failed to copy qbee-agent.json file: {output}")
 
       # Verify that the JSON file is parseable.
-      with open(qbeeAgentJsonFile.name, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-      self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
+      with open(qbeeAgentJsonFile.name, 'r') as qbeeAgentJson:
+        data = json.load(qbeeAgentJson)
+        self.assertIsNotNone(data, msg=f"Failed to parse qbee-agent.json file with env {line}")
+        if expected_key:
+          self.assertIn(expected_key, data, msg=f"Expected key '{expected_key}' missing from qbee-agent.json for env {line}")
+          if expected_value is not None:
+            self.assertEqual(data[expected_key], expected_value, msg=f"Unexpected value for key '{expected_key}' in qbee-agent.json for env {line}")
 
       self.target.run(f'rm -f {bootstrapEnvTargetPath} && rm -f {qbeeAgentConfigFile}')
 
