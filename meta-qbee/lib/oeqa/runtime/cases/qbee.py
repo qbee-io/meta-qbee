@@ -42,8 +42,9 @@ class QbeeAgentTest(OERuntimeTestCase):
       ("DEVICE_NAME_TYPE=machine-id", "device_name", ""),
       ("DEVICE_HUB_HOST=device.app.qbee.io", "server", "device.app.qbee.io"),
       ("DISABLE_REMOTE_ACCESS=true", "disable_remote_access", True),
-      ("TPM_DEVICE=/dev/tpm0", "tpm_device", "/dev/tpm0"),
-      ("CA_CERT=/etc/qbee/ca_cert.pem", "ca_cert", "/etc/qbee/ca_cert.pem"),
+      # use a valid character device name to ensure that the value is properly passed through and not rejected by qbee-bootstrap-prep.sh
+      ("TPM_DEVICE=/dev/null", "tpm_device", "/dev/null"),
+      ("CA_CERT=/etc/qbee/yocto/ca_cert.pem", "ca_cert", "/etc/qbee/yocto/ca_cert.pem"),
       ("ELEVATION_COMMAND='[\"/usr/bin/sudo\", \"-n\"]'", "elevation_command", ["/usr/bin/sudo", "-n"]),
     ]
 
