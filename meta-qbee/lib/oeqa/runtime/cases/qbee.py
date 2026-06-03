@@ -44,7 +44,7 @@ class QbeeAgentTest(OERuntimeTestCase):
       ("DISABLE_REMOTE_ACCESS=true", "disable_remote_access", True),
       # use a valid character device name to ensure that the value is properly passed through and not rejected by qbee-bootstrap-prep.sh
       ("TPM_DEVICE=/dev/null", "tpm_device", "/dev/null"),
-      ("CA_CERT=/etc/qbee/yocto/ca_cert.pem", "ca_cert", "/etc/qbee/yocto/ca_cert.pem"),
+      ("CA_CERT=/etc/qbee/yocto/ca.cert", "ca_cert", "/etc/qbee/yocto/ca.cert"),
       ("ELEVATION_COMMAND='[\"/usr/bin/sudo\", \"-n\"]'", "elevation_command", ["/usr/bin/sudo", "-n"]),
     ]
 
