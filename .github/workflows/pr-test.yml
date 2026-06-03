@@ -31,8 +31,8 @@ jobs:
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/yocto/downloads
-        SSTATE_DIR: /ci/yocto/sstate
-        TMPDIR: /ci/yocto/tmp
+        SSTATE_DIR: /ci/yocto/${{ github.base_ref }}/sstate
+        TMPDIR: /ci/yocto/${{ github.base_ref }}/tmp
         # Environment variable for bootstrap key
         # This should be set in the GitHub repository secrets for security
         # when running integration tests with the platform
