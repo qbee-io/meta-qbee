@@ -64,7 +64,12 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
-          kas build kas-qbee-agent.yml
+          kas build kas-qbee-agent.yml || {
+            echo "Initial build failed, cleaning conflicting sysroot state and retrying..."
+            bitbake -c cleansstate world
+            rm -rf /ci/yocto/${{ github.base_ref }}/tmp
+            kas build kas-qbee-agent.yml
+          }
 
       - name: Run OEQA tests with KAS
         env:
