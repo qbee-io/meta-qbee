@@ -64,6 +64,7 @@ jobs:
         env:
           KAS_MACHINE: ${{ matrix.machine }}
         run: |
+          kas shell kas-qbee-agent.yml -c "bitbake -c cleansstate shared-mime-info-native gettext-native"
           kas build kas-qbee-agent.yml
 
       - name: Run OEQA tests with KAS
