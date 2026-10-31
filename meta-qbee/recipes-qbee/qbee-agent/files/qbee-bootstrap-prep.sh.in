@@ -34,6 +34,7 @@ resolve_mac() {
   done
   if [ -z "$iface" ]; then
     echo "NA"
+    return 0
   fi
   cat "$iface/address"
 }
