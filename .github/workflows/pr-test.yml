@@ -3,95 +3,76 @@ permissions:
 name: meta-qbee-pr-tests
 on:
   pull_request:
-  push:
     branches:
       - master
+      - kirkstone
+      - scarthgap
+      - wrynose
+env:
+  # Environment variable for BitBake branch, defaulting to 'master' if not set
+  BITBAKE_MAP: >-
+    {
+      "kirkstone": "2.0",
+      "scarthgap": "2.8",
+      "wrynose": "2.18",
+      "master": "master"
+    }
 
 jobs:
   build:
     strategy:
       matrix:
-        arch: [x86_64,arm64]
-        branch: [kirkstone,scarthgap]
+        machine: [qemux86-64,qemuarm64]
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
-      image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
+      image: ghcr.io/siemens/kas/kas:5.0-debian-bookworm
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/yocto/downloads
-        SSTATE_DIR: /ci/yocto/sstate
-        TMPDIR: /ci/yocto/tmp
+        SSTATE_DIR: /ci/yocto/${{ github.base_ref }}/sstate
+        TMPDIR: /ci/yocto/${{ github.base_ref }}/tmp
         # Environment variable for bootstrap key
         # This should be set in the GitHub repository secrets for security
         # when running integration tests with the platform
         QBEE_BOOTSTRAP_KEY: my-bootstrap-key
       volumes:
         - /home/runner/ci/yocto:/ci/yocto
+        - /etc/passwd:/etc/passwd:ro
+        - /etc/group:/etc/group:ro
     steps:
       - uses: actions/checkout@v4
         with:
           clean: true
           fetch-depth: 0
+
       - name: Set up KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
+          TARGET_BRANCH: ${{ github.base_ref }}
+          BITBAKE_BRANCH: ${{ fromJSON(env.BITBAKE_MAP)[github.base_ref] || 'master' }}
+          HEAD_BRANCH: ${{ github.head_ref }}
         run: |
-           kas checkout kas/poky/qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
+          # Generate the KAS configuration file from the template, substituting environment variables
+          python3 -c 'import os,sys; print(os.path.expandvars(sys.stdin.read()))' \
+            < kas-qbee-agent.yml.template > kas-qbee-agent.yml
+
+          kas checkout kas-qbee-agent.yml
+
       - name: Build with KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
         run: |
-          kas build kas/poky/qbee-agent.${{ matrix.branch }}.${{ matrix.arch }}.yml
-  
-  rauc-simple-build:
-    needs: build
-    runs-on: [self-hosted, Linux, X64]
-    timeout-minutes: 600
-    container:
-      image: ghcr.io/siemens/kas/kas:4.8.1 # Use the latest kas container image
-      options: --user 1000:1000
-      env:
-        KAS_CLONE_DEPTH: 0
-        DL_DIR: /ci/yocto/downloads
-        SSTATE_DIR: /ci/yocto/sstate
-        TMPDIR: /ci/yocto/tmp
-      volumes:
-        - /home/runner/ci/yocto:/ci/yocto
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          clean: false
-          fetch-depth: 0
-      
-      - name: Set up KAS
-        run: |
-           kas checkout kas/poky/qbee-agent.scarthgap.rauc-simple.yml
-      
-      - name: Build with KAS
-        run: |
-          kas build kas/poky/qbee-agent.scarthgap.rauc-simple.yml
-  build-demo-docker:
+          kas build kas-qbee-agent.yml || {
+            echo "Initial build failed, cleaning conflicting sysroot state and retrying..."
+            bitbake -c cleansstate world
+            rm -rf /ci/yocto/${{ github.base_ref }}/tmp
+            kas build kas-qbee-agent.yml
+          }
 
-    needs: rauc-simple-build
-    runs-on: [self-hosted, Linux, X64]
-    timeout-minutes: 600
-    steps:
-      
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          clean: false
-          fetch-depth: 0
-          
-      - name: Build Docker
+      - name: Run OEQA tests with KAS
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
         run: |
-          mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
-          
-          cp /home/runner/ci/yocto/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
-            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
-
-          cp /home/runner/ci/yocto/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
-            ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
-
-          cd ${GITHUB_WORKSPACE}/meta-container-os/docker
-          
-          docker build -t qbeeio/qbee-demo:rauc-latest .
+          kas build kas-qbee-agent-test.yml
