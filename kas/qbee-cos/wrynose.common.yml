@@ -1,5 +1,5 @@
 header:
-  version: 8
+  version: 16
 
 distro: qbee-cos
 
@@ -9,17 +9,37 @@ repos:
       meta-qbee:
       meta-container-os:
 
-  poky:
-    url: https://git.yoctoproject.org/git/poky
-    tag: scarthgap-5.0.15
+  # Yocto 6.0.4 (wrynose). Poky is no longer a combined repo, so bitbake,
+  # openembedded-core and meta-yocto are pulled in separately.
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    path: layers/bitbake
+    tag: yocto-6.0.4
+    commit: 51fd94a67fa17650a9ff623492005972bbc7d26f
+    layers:
+      .: disabled
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    path: layers/openembedded-core
+    tag: yocto-6.0.4
+    commit: 0f03c732a0a2d0506b41b1abe60b3f368b2300dc
     layers:
       meta:
+
+  meta-yocto:
+    url: https://git.yoctoproject.org/meta-yocto
+    path: layers/meta-yocto
+    tag: yocto-6.0.4
+    commit: 7c25b11156553145fa6b241a2d4f65d94438f804
+    layers:
       meta-poky:
       meta-yocto-bsp:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    branch: scarthgap
+    path: layers/meta-openembedded
+    branch: wrynose
     layers:
       meta-oe:
       meta-python:
@@ -28,34 +48,40 @@ repos:
 
   meta-rauc:
     url: https://github.com/rauc/meta-rauc.git
-    branch: scarthgap
+    path: layers/meta-rauc
+    branch: wrynose
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization.git
-    branch: scarthgap
+    path: layers/meta-virtualization
+    branch: wrynose
 
   meta-security:
     url: https://git.yoctoproject.org/meta-security.git
-    branch: scarthgap
+    path: layers/meta-security
+    branch: wrynose
     layers:
       meta-tpm:
 
-  meta-lts-mixins:
-    url: https://git.yoctoproject.org/meta-lts-mixins
-    branch: scarthgap/u-boot
+  # meta-rauc-community has no wrynose branch; master is wrynose compatible,
+  # so pin a known good commit. Its layers also provide the RAUC example keys.
+  meta-rauc-community:
+    url: https://github.com/rauc/meta-rauc-community.git
+    path: layers/meta-rauc-community
+    branch: master
+    commit: 4d666ae4956f1cfacbd1a844f2e1794cb7784e2a
+    layers:
+      .: disabled
 
 local_conf_header:
   standard: |
     CONF_VERSION = "2"
-    INHERIT += "rm_work create-spdx cve-check"
+    INHERIT += "rm_work"
     QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
     QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
-    RAUC_KEYRING_FILE = "${TOPDIR}/../meta-rauc-community/meta-rauc-raspberrypi/recipes-core/rauc/files/ca.cert.pem"
-    RAUC_KEY_FILE = "${TOPDIR}/../meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.key.pem"
-    RAUC_CERT_FILE = "${TOPDIR}/../meta-rauc-community/meta-rauc-raspberrypi/recipes-core/bundles/files/development-1.cert.pem"
     RAUC_SLOT_rootfs[fstype] = "ext4"
     RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
-    QBEE_BOOTSTRAP_KEY="${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    QBEE_BOOTSTRAP_KEY = "${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
     QBEE_EXEC_USER = "qbee-agent"
     QBEE_ELEVATION_COMMAND = '["/usr/bin/sudo","-n"]'
     QBEE_SUPPLEMENTARY_GROUPS = "docker tss"

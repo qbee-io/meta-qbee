@@ -55,10 +55,10 @@ if [[ -S $QBEE_TPM2_DIR/swtpm-sock ]]; then
   echo "TPM_DEVICE=/dev/tpm0" >> /run/.bootstrap-env
 fi
 
-/poky/scripts/wic cp /run/.bootstrap-env $IMAGE:4/etc/qbee/yocto/
+wic cp /run/.bootstrap-env $IMAGE:4/etc/qbee/yocto/
 
 if [[ -n $QBEE_DEMO_DEVICE_CA_CERT ]]; then
-  /poky/scripts/wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/yocto/ca.cert.custom
+  wic cp /run/ca.cert.custom $IMAGE:4/etc/qbee/yocto/ca.cert.custom
 fi
 
 qemu-system-x86_64 \

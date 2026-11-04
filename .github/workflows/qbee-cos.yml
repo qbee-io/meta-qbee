@@ -19,19 +19,21 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     container:
-      image: ghcr.io/siemens/kas/kas:4.8.2 # Use the latest kas container image
+      image: ghcr.io/siemens/kas/kas:5.0-debian-bookworm
       options: --user 1000:1000
       env:
         KAS_CLONE_DEPTH: 0
         DL_DIR: /ci/qbee-cos/downloads
-        SSTATE_DIR: /ci/qbee-cos/sstate
-        TMPDIR: /ci/qbee-cos/tmp
+        SSTATE_DIR: /ci/qbee-cos/wrynose/sstate
+        TMPDIR: /ci/qbee-cos/wrynose/tmp
         # Environment variable for bootstrap key
         # This should be set in the GitHub repository secrets for security
         # when running integration tests with the platform
         QBEE_BOOTSTRAP_KEY: my-bootstrap-key
       volumes:
         - /home/runner/ci/qbee-cos:/ci/qbee-cos
+        - /etc/passwd:/etc/passwd:ro
+        - /etc/group:/etc/group:ro
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,18 +41,17 @@ jobs:
           fetch-depth: 0
       - name: Set up KAS
         run: |
-          kas checkout kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+          kas checkout kas/qbee-cos/${{matrix.machine}}.wrynose.yml
       - name: Build with KAS
         run: |
-          # kas shell kas/qbee-cos/${{matrix.machine}}.scarthgap.yml -c 'bitbake -c cleansstate lz4-native && bitbake lz4-native'
-          kas build kas/qbee-cos/${{matrix.machine}}.scarthgap.yml
+          kas build kas/qbee-cos/${{matrix.machine}}.wrynose.yml
 
   build-demo-docker:
     needs: build
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 600
     env:
-      POKY_VERSION: scarthgap-5.0.15
+      YOCTO_VERSION: wrynose-6.0.4
 
     steps:
       - name: Checkout
@@ -62,9 +63,9 @@ jobs:
       - name: Build Docker
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/meta-container-os/docker/images
-          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
+          cp /home/runner/ci/qbee-cos/wrynose/tmp/deploy/images/qemux86-64/ovmf.qcow2 \
             ${GITHUB_WORKSPACE}/meta-container-os/docker/images/
-          cp /home/runner/ci/qbee-cos/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
+          cp /home/runner/ci/qbee-cos/wrynose/tmp/deploy/images/qemux86-64/core-image-minimal-qemux86-64.rootfs.wic \
             ${GITHUB_WORKSPACE}/meta-container-os/docker/images/vmimage.wic
           cd ${GITHUB_WORKSPACE}/meta-container-os/docker
-          docker build -t qbeeio/qbee-demo:${POKY_VERSION} .
+          docker build -t qbeeio/qbee-demo:${YOCTO_VERSION} .

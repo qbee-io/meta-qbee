@@ -1,7 +1,7 @@
 header:
-  version: 8
+  version: 16
   includes:
-    - kas/qbee-cos/scarthgap.common.yml
+    - kas/qbee-cos/wrynose.common.yml
 machine: qemux86-64
 
 target:
@@ -9,8 +9,6 @@ target:
 
 repos:
   meta-rauc-community:
-    url: https://github.com/rauc/meta-rauc-community.git
-    branch: scarthgap
     layers:
       meta-rauc-qemux86:
 
@@ -18,6 +16,7 @@ local_conf_header:
   qemux86_64: |
     MACHINE_FEATURES:append = " pcbios efi"
     EXTRA_IMAGEDEPENDS += "ovmf"
+    PREFERRED_RPROVIDER_virtual-grub-bootconf = "rauc-qemu-grubconf"
 
     # Hook file and type definition
     RAUC_BUNDLE_HOOKS[file] = "post-install.sh"

@@ -1,0 +1,5 @@
+header:
+  version: 16
+  includes:
+    - kas/qbee-cos/raspberrypi.wrynose.common.yml
+machine: raspberrypi0-2w-64

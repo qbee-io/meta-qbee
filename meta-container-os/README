@@ -5,15 +5,37 @@ Please see the corresponding sections below for details.
 Dependencies
 ============
 
-  URI: <first dependency>
-  branch: <branch name>
+Targets Yocto 6.0.4 (wrynose). See kas/qbee-cos/wrynose.common.yml for
+the exact revisions used.
 
-  URI: <second dependency>
-  branch: <branch name>
+  URI: https://git.openembedded.org/bitbake
+  URI: https://git.openembedded.org/openembedded-core
+  URI: https://git.yoctoproject.org/meta-yocto
+  tag: yocto-6.0.4
 
-  .
-  .
-  .
+  URI: https://git.openembedded.org/meta-openembedded
+  layers: meta-oe, meta-python, meta-filesystems, meta-networking
+  branch: wrynose
+
+  URI: https://github.com/rauc/meta-rauc.git
+  branch: wrynose
+
+  URI: https://git.yoctoproject.org/meta-virtualization.git
+  branch: wrynose
+
+  URI: https://git.yoctoproject.org/meta-security.git
+  layers: meta-tpm
+  branch: wrynose
+
+  URI: https://github.com/rauc/meta-rauc-community.git
+  layers: meta-rauc-qemux86 / meta-rauc-raspberrypi
+  branch: master (no wrynose branch exists, pinned to a commit)
+
+  URI: https://git.yoctoproject.org/meta-raspberrypi.git (raspberrypi only)
+  branch: wrynose
+
+  URI: https://github.com/qbee-io/meta-qbee (meta-qbee layer)
+  branch: master
 
 Patches
 =======

@@ -1,21 +1,20 @@
 header:
-  version: 8
+  version: 16
   includes:
-    - kas/qbee-cos/scarthgap.common.yml
+    - kas/qbee-cos/wrynose.common.yml
 
 target:
   - update-bundle
 
 repos:
   meta-rauc-community:
-    url: https://github.com/rauc/meta-rauc-community.git
-    branch: scarthgap
     layers:
       meta-rauc-raspberrypi:
 
   meta-raspberrypi:
     url: https://git.yoctoproject.org/meta-raspberrypi.git
-    branch: scarthgap
+    path: layers/meta-raspberrypi
+    branch: wrynose
 
 local_conf_header:
   raspberrypi: |

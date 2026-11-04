@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = "file://grow-data-part.sh \
   file://grow-data-part.service"
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 inherit systemd
 
@@ -15,9 +15,9 @@ SYSTEMD_SERVICE:${PN} = "grow-data-part.service"
 
 do_install() {
   install -d ${D}${systemd_unitdir}/system/
-  install -m 0644 ${WORKDIR}/grow-data-part.service ${D}${systemd_unitdir}/system/
+  install -m 0644 ${S}/grow-data-part.service ${D}${systemd_unitdir}/system/
   install -d ${D}/usr/bin/
-  install -m 0755 ${WORKDIR}/grow-data-part.sh ${D}/usr/bin/
+  install -m 0755 ${S}/grow-data-part.sh ${D}/usr/bin/
 }
 
 FILES:${PN} += "/usr/bin/grow-data-part.sh \
