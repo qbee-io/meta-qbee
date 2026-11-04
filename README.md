@@ -68,8 +68,8 @@ QBEE_SUPPLEMENTARY_GROUPS ?= ""
 
 The qbee-agent is designed to work without network connectivity. The default settings might therefore lead to some connection
 error messages during startup. The qbee-agent will re-try the connection, so it will eventually come online once network is ready.
-However, if you want to ovverride this behavior, you can use the `QBEE_SYSTEMD_AFTER_TARGET` and 
-`QBEE_SYSTEMD_AFTER_TARGET` build time variables to make qbee-agent start after full connectivity has been establised.
+However, if you want to override this behavior, you can use the `QBEE_SYSTEMD_AFTER_TARGET` and
+`QBEE_SYSTEMD_WANTS_TARGET` build time variables to make qbee-agent start after full connectivity has been established.
 
 Eg.
 ```
