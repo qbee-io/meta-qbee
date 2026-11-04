@@ -26,14 +26,14 @@ start_qbee_agent()
     /etc/qbee/yocto/qbee-bootstrap-prep.sh
   fi
   echo "Starting qbee-agent"
-  start-stop-daemon -q -S -m -p $pidfile -b -x $launcher -- -c $QBEE_CONF_DIR -s $QBEE_STATE_DIR start 
+  start-stop-daemon -q -S -m -p "$pidfile" -b -x "$launcher" -- -c "$QBEE_CONF_DIR" -s "$QBEE_STATE_DIR" start
 }
 
 stop_qbee_agent()
 {
   echo "Stopping qbee-agent"
-  start-stop-daemon -q -K -p $pidfile -s INT
-  rm $pidfile -f
+  start-stop-daemon -q -K -p "$pidfile" -s INT
+  rm -f "$pidfile"
 }
 
 die()
@@ -53,8 +53,8 @@ case "$1" in
         $0 start
         ;;
   status)
-        if [ -f $pidfile ]; then
-            echo "qbee-agent (pid $(cat $pidfile)) is running..."
+        if [ -f "$pidfile" ]; then
+            echo "qbee-agent (pid $(cat "$pidfile")) is running..."
             exit 0
         else
             echo "qbee-agent is stopped"
