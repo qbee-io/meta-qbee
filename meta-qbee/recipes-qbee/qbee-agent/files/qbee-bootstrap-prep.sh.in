@@ -47,6 +47,15 @@ resolve_machine_id() {
   fi
 }
 
+# Escape quotes and backslashes in values written to JSON strings.
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+json_string() {
+  printf '"%s"' "$(json_escape "$1")"
+}
+
 # Always make sure we have the updated CA cert
 mkdir -p "$CONF_DIR/ppkeys" "$STATE_DIR"
 chmod 700 "$CONF_DIR/ppkeys"
@@ -71,23 +80,23 @@ fi
 . "$YOCTO_DIR/.bootstrap-env"
 
 if [ -n "$BOOTSTRAP_KEY" ]; then
-  printf '{"bootstrap_key":"%s"' "$BOOTSTRAP_KEY" > "$CONF_DIR/qbee-agent.json"
+  printf '{"bootstrap_key":%s' "$(json_string "$BOOTSTRAP_KEY")" > "$CONF_DIR/qbee-agent.json"
 fi
 
 if [ "$DEVICE_NAME_TYPE" = "machine-id" ]; then
   device_name=$(resolve_machine_id)
-  printf ',"device_name":"%s"' "$device_name" >> "$CONF_DIR/qbee-agent.json"
+  printf ',"device_name":%s' "$(json_string "$device_name")" >> "$CONF_DIR/qbee-agent.json"
 elif [ "$DEVICE_NAME_TYPE" = "mac-address" ]; then
   device_name=$(resolve_mac)
-  printf ',"device_name":"%s"' "$device_name" >> "$CONF_DIR/qbee-agent.json" 
+  printf ',"device_name":%s' "$(json_string "$device_name")" >> "$CONF_DIR/qbee-agent.json"
 fi
 
 if [ -n "$DEVICE_HUB_HOST" ]; then
-  printf ',"server":"%s"' "$DEVICE_HUB_HOST" >> "$CONF_DIR/qbee-agent.json"
+  printf ',"server":%s' "$(json_string "$DEVICE_HUB_HOST")" >> "$CONF_DIR/qbee-agent.json"
 fi
 
 if [ -n "$VPN_SERVER" ]; then
-  printf ',"vpn_server":"%s"' "$VPN_SERVER" >> "$CONF_DIR/qbee-agent.json"
+  printf ',"vpn_server":%s' "$(json_string "$VPN_SERVER")" >> "$CONF_DIR/qbee-agent.json"
 fi
 
 if [ "$DISABLE_REMOTE_ACCESS" = "true" ]; then
@@ -96,13 +105,13 @@ fi
 
 if [ "x$TPM_DEVICE" != "x" ]; then
   if [ -c "$TPM_DEVICE" ]; then
-    printf ',"tpm_device":"%s"' "$TPM_DEVICE" >> "$CONF_DIR/qbee-agent.json"
+    printf ',"tpm_device":%s' "$(json_string "$TPM_DEVICE")" >> "$CONF_DIR/qbee-agent.json"
   fi
 fi
 
 if [ "x$CA_CERT" != "x" ]; then
   if [ -f "$CA_CERT" ]; then
-    printf ',"ca_cert":"%s"' "$CA_CERT" >> "$CONF_DIR/qbee-agent.json"
+    printf ',"ca_cert":%s' "$(json_string "$CA_CERT")" >> "$CONF_DIR/qbee-agent.json"
   fi
 fi
 
