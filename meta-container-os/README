@@ -1,0 +1,63 @@
+This README file contains information on the contents of the meta-container-os layer.
+
+Please see the corresponding sections below for details.
+
+Dependencies
+============
+
+Targets Yocto 6.0.4 (wrynose). See kas/qbee-cos/wrynose.common.yml for
+the exact revisions used.
+
+  URI: https://git.openembedded.org/bitbake
+  URI: https://git.openembedded.org/openembedded-core
+  URI: https://git.yoctoproject.org/meta-yocto
+  tag: yocto-6.0.4
+
+  URI: https://git.openembedded.org/meta-openembedded
+  layers: meta-oe, meta-python, meta-filesystems, meta-networking
+  branch: wrynose
+
+  URI: https://github.com/rauc/meta-rauc.git
+  branch: wrynose
+
+  URI: https://git.yoctoproject.org/meta-virtualization.git
+  branch: wrynose
+
+  URI: https://git.yoctoproject.org/meta-security.git
+  layers: meta-tpm
+  branch: wrynose
+
+  URI: https://github.com/rauc/meta-rauc-community.git
+  layers: meta-rauc-qemux86 / meta-rauc-raspberrypi
+  branch: master (no wrynose branch exists, pinned to a commit)
+
+  URI: https://git.yoctoproject.org/meta-raspberrypi.git (raspberrypi only)
+  branch: wrynose
+
+  URI: https://github.com/qbee-io/meta-qbee (meta-qbee layer)
+  branch: master
+
+Patches
+=======
+
+Please submit any patches against the meta-container-os layer to the xxxx mailing list (xxxx@zzzz.org)
+and cc: the maintainer:
+
+Maintainer: XXX YYYYYY <xxx.yyyyyy@zzzzz.com>
+
+Table of Contents
+=================
+
+  I. Adding the meta-container-os layer to your build
+ II. Misc
+
+
+I. Adding the meta-container-os layer to your build
+=================================================
+
+Run 'bitbake-layers add-layer meta-container-os'
+
+II. Misc
+========
+
+--- replace with specific information about the meta-container-os layer ---

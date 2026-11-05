@@ -1,0 +1,98 @@
+header:
+  version: 16
+
+distro: qbee-cos
+
+repos:
+  meta-qbee:
+    layers:
+      meta-qbee:
+      meta-container-os:
+
+  # Yocto 6.0.4 (wrynose). Poky is no longer a combined repo, so bitbake,
+  # openembedded-core and meta-yocto are pulled in separately.
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    path: layers/bitbake
+    tag: yocto-6.0.4
+    commit: 51fd94a67fa17650a9ff623492005972bbc7d26f
+    layers:
+      .: disabled
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    path: layers/openembedded-core
+    tag: yocto-6.0.4
+    commit: 0f03c732a0a2d0506b41b1abe60b3f368b2300dc
+    layers:
+      meta:
+
+  meta-yocto:
+    url: https://git.yoctoproject.org/meta-yocto
+    path: layers/meta-yocto
+    tag: yocto-6.0.4
+    commit: 7c25b11156553145fa6b241a2d4f65d94438f804
+    layers:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    path: layers/meta-openembedded
+    branch: wrynose
+    layers:
+      meta-oe:
+      meta-python:
+      meta-filesystems:
+      meta-networking:
+
+  meta-rauc:
+    url: https://github.com/rauc/meta-rauc.git
+    path: layers/meta-rauc
+    branch: wrynose
+
+  meta-virtualization:
+    url: https://git.yoctoproject.org/meta-virtualization.git
+    path: layers/meta-virtualization
+    branch: wrynose
+
+  meta-security:
+    url: https://git.yoctoproject.org/meta-security.git
+    path: layers/meta-security
+    branch: wrynose
+    layers:
+      meta-tpm:
+
+  # meta-rauc-community has no wrynose branch; master is wrynose compatible,
+  # so pin a known good commit. Its layers also provide the RAUC example keys.
+  meta-rauc-community:
+    url: https://github.com/rauc/meta-rauc-community.git
+    path: layers/meta-rauc-community
+    branch: master
+    commit: 4d666ae4956f1cfacbd1a844f2e1794cb7784e2a
+    layers:
+      .: disabled
+
+local_conf_header:
+  standard: |
+    CONF_VERSION = "2"
+    INHERIT += "rm_work"
+    QBEE_SYSTEMD_AFTER_TARGET = "systemd-resolved.service network-online.target"
+    QBEE_SYSTEMD_WANTS_TARGET = "network-online.target"
+    RAUC_SLOT_rootfs[fstype] = "ext4"
+    RAUC_SLOT_rootfs[adaptive] = "block-hash-index"
+    QBEE_BOOTSTRAP_KEY = "${@os.getenv('QBEE_BOOTSTRAP_KEY', '')}"
+    QBEE_EXEC_USER = "qbee-agent"
+    QBEE_ELEVATION_COMMAND = '["/usr/bin/sudo","-n"]'
+    QBEE_SUPPLEMENTARY_GROUPS = "docker tss"
+    # something is up with the SPDX creation, skip for now
+    INHERIT:remove = "create-spdx"
+    BB_DISKMON_DIRS = "\
+        STOPTASKS,${TMPDIR},1G,100K \
+        STOPTASKS,${DL_DIR},1G,100K \
+        STOPTASKS,${SSTATE_DIR},1G,100K \
+        STOPTASKS,/tmp,100M,100K \
+        HALT,${TMPDIR},100M,1K \
+        HALT,${DL_DIR},100M,1K \
+        HALT,${SSTATE_DIR},100M,1K \
+        HALT,/tmp,10M,1K"
