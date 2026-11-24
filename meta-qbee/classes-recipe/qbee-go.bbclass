@@ -60,7 +60,7 @@ GOTMPDIR[vardepvalue] = ""
 
 do_configure[noexec] = "1"
 
-qbee_go_do_compile() {
+do_compile() {
 	export TMPDIR="${GOTMPDIR}"
 	# The go command writes telemetry counters below $HOME; keep that inside WORKDIR
 	export HOME="${WORKDIR}/go-home"
@@ -77,12 +77,10 @@ do_compile[dirs] = "${B} ${GOTMPDIR} ${WORKDIR}/go-home"
 # Go modules are downloaded during compile
 do_compile[network] = "1"
 
-qbee_go_do_install() {
+do_install() {
 	install -d ${D}${bindir}
 	install -m 0755 ${QBEE_GO_BINARY} ${D}${bindir}/
 }
-
-EXPORT_FUNCTIONS do_compile do_install
 
 SPDX_PACKAGE_URLS =+ "pkg:golang/${GO_IMPORT}@${PV} "
 
