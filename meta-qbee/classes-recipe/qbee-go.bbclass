@@ -74,6 +74,33 @@ do_compile() {
 		-o ${QBEE_GO_BINARY} ${QBEE_GO_PACKAGE}
 }
 do_compile[dirs] = "${B} ${GOTMPDIR} ${WORKDIR}/go-home"
+do_compile[postfuncs] += "qbee_go_verify_binary"
+
+# Check the build info embedded in the binary: it must have been built by the
+# qbee-go-native toolchain (not a host Go or an auto-downloaded toolchain),
+# with cgo disabled and for the target architecture.
+qbee_go_verify_binary() {
+	expected="$(head -n1 ${QBEE_GOROOT}/VERSION)"
+	info="$(${QBEE_GO} version -m ${QBEE_GO_BINARY})" || \
+		bbfatal "Could not read Go build info from ${QBEE_GO_BINARY}"
+
+	actual="$(echo "$info" | awk 'NR==1 {print $2}')"
+	if [ "$actual" != "$expected" ]; then
+		bbfatal "${QBEE_GO_BINARY} was built with $actual, expected $expected from qbee-go-native"
+	fi
+
+	cgo="$(echo "$info" | awk '$1 == "build" && $2 ~ /^CGO_ENABLED=/ {sub(/^CGO_ENABLED=/, "", $2); print $2}')"
+	if [ "$cgo" != "0" ]; then
+		bbfatal "${QBEE_GO_BINARY} was built with CGO_ENABLED=$cgo, expected 0"
+	fi
+
+	goarch="$(echo "$info" | awk '$1 == "build" && $2 ~ /^GOARCH=/ {sub(/^GOARCH=/, "", $2); print $2}')"
+	if [ "$goarch" != "${TARGET_GOARCH}" ]; then
+		bbfatal "${QBEE_GO_BINARY} was built for GOARCH=$goarch, expected ${TARGET_GOARCH}"
+	fi
+
+	bbnote "${QBEE_GO_BINARY}: $actual, CGO_ENABLED=$cgo, GOARCH=$goarch"
+}
 # Go modules are downloaded during compile
 do_compile[network] = "1"
 
