@@ -48,7 +48,7 @@ RRECOMMENDS:${PN} += " \
 
 B = "${WORKDIR}/build"
 
-inherit update-rc.d systemd go-mod useradd
+inherit update-rc.d systemd qbee-go useradd
 
 python __anonymous() {
     # Check your custom variable
@@ -92,9 +92,6 @@ GO_EXTRA_LDFLAGS = "-w -s \
   -X go.qbee.io/agent/app.Version=${PV} \
   -X go.qbee.io/agent/app.Commit=${SRCREV}"
 
-# Use static linking
-GO_LINKSHARED = ""
-
 UPSTREAM_CHECK_COMMITS = "1"
 
 INHIBIT_PACKAGE_STRIP = "1"
@@ -114,14 +111,7 @@ SRC_URI:append = "file://qbee-agent.service.unprivileged.in \
   file://qbee-agent.service.supplementary-groups.in \
   "
 
-python __anonymous() {
-  d.appendVarFlag('do_compile', 'network', '1') 
-}
-
 do_install:append () {
-  # We need to rename the binary
-  mv ${D}${bindir}/agent ${D}${bindir}/qbee-agent 
-
   install -m 0700 -d ${D}${sysconfdir}/qbee
   install -m 0700 -d ${D}${sysconfdir}/qbee/yocto
   install -m 0600 ${S}/src/${GO_IMPORT}/package/share/ssl/ca.cert ${D}${sysconfdir}/qbee/yocto
