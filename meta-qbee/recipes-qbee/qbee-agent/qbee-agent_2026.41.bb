@@ -1,6 +1,6 @@
 require qbee-agent.inc
 
-SRC_URI = "git://${GO_IMPORT};branch=main;protocol=https \
+SRC_URI = "git://${GO_IMPORT};branch=main;protocol=https;destsuffix=${GO_SRCURI_DESTSUFFIX} \
   file://qbee-bootstrap-prep.sh.in \
   file://qbee-agent.service.in \
   file://qbee-agent.init.in \
