@@ -78,3 +78,23 @@ The `QBEE_SUPPLEMENTARY_GROUPS` will add supplementary groups to the systemd for
 if you want to use the `tpm` and `docker` features of the qbee-agent).
 
 More information on the running qbee-agent as an unprivileged user can be found here: https://docs.qbee.io/agent-rootless.html 
+
+# Note on RAUC streaming updates
+
+When qbee-agent installs a RAUC bundle through qbee's RAUC configuration, it streams
+the bundle by default (`rauc install <https-url>`) rather than downloading it first.
+RAUC streaming requires the kernel's NBD driver (`CONFIG_BLK_DEV_NBD`). Without it,
+installs fail with:
+
+    failed to resolve 'nbd' netlink family - BLK_DEV_NBD not enabled in kernel?
+
+Either build NBD into the kernel (`CONFIG_BLK_DEV_NBD=y`), or build it as a module and
+make sure it is loaded at boot:
+
+```
+KERNEL_MODULE_AUTOLOAD += "nbd"
+MACHINE_EXTRA_RRECOMMENDS += "kernel-module-nbd"
+```
+
+Alternatively, configure the RAUC update to download the bundle to the device before
+installing, which does not require NBD.
